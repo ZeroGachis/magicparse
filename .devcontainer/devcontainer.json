@@ -1,0 +1,11 @@
+{
+    "name": "csvmagic",
+    "dockerComposeFile": ["../docker-compose.yml"],
+    "service": "csvmagic",
+    "workspaceFolder": "/home/src/csvmagic/",
+    "shutdownAction": "stopCompose",
+	"extensions": [
+		"ms-python.python",
+		"ms-python.vscode-pylance"
+	]
+}

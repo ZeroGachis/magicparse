@@ -1,0 +1,12 @@
+version: '3.0'
+
+services:
+
+  csvmagic:
+    build:
+      context: .
+    tty: true
+    working_dir: /home/src/csvmagic
+
+    volumes:
+      - .:/home/src/csvmagic
