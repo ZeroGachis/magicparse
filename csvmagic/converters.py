@@ -5,7 +5,15 @@ from decimal import Decimal
 class Converter(ABC):
     @classmethod
     def build(cls, options) -> "Converter":
-        return _types[options["type"]]()
+        try:
+            _type = options["type"]
+        except:
+            raise ValueError("missing key 'type'")
+
+        try:
+            return _types[_type]()
+        except:
+            raise ValueError(f"invalid type '{_type}'")
 
     @abstractmethod
     def apply(self, value):
@@ -19,12 +27,18 @@ class StrConverter(Converter):
 
 class IntConverter(Converter):
     def apply(self, value: str) -> int:
-        return int(value)
+        try:
+            return int(value)
+        except:
+            raise ValueError("value is not a valid integer")
 
 
 class DecimalConverter(Converter):
     def apply(self, value: str) -> Decimal:
-        return Decimal(value)
+        try:
+            return Decimal(value)
+        except:
+            raise ValueError("value is not a valid decimal")
 
 
 _types = {"str": StrConverter, "int": IntConverter, "decimal": DecimalConverter}
