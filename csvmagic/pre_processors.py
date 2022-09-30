@@ -4,7 +4,15 @@ from abc import ABC, abstractmethod
 class PreProcessor(ABC):
     @classmethod
     def build(cls, options: dict) -> "PreProcessor":
-        pre_processor = _pre_processors[options["name"]]
+        try:
+            name = options["name"]
+        except:
+            raise ValueError("pre-processor must have a 'name' key")
+
+        try:
+            pre_processor = _pre_processors[name]
+        except:
+            raise ValueError(f"invalid pre-processor '{name}'")
 
         if "parameters" in options:
             return pre_processor(**options["parameters"])
@@ -27,13 +35,15 @@ class LeftPadZeroes(PreProcessor):
 class Map(PreProcessor):
     def __init__(self, values: dict) -> None:
         self.values = values
+        self._keys = ", ".join(f"'{key}'" for key in self.values.keys())
 
     def apply(self, value: str) -> str:
         try:
             return self.values[value]
-        except KeyError:
-            keys = ", ".join(f"'{key}'" for key in self.values.keys())
-            raise KeyError(f"value '{value}' does not map to any values in [{keys}]")
+        except:
+            raise ValueError(
+                f"value '{value}' does not map to any values in [{self._keys}]"
+            )
 
 
 class Replace(PreProcessor):
