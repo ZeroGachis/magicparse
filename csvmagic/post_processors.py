@@ -9,7 +9,15 @@ T = TypeVar("T")
 class PostProcessor(ABC):
     @classmethod
     def build(cls, options: dict) -> "PostProcessor":
-        post_processor = _post_processors[options["name"]]
+        try:
+            name = options["name"]
+        except:
+            raise ValueError("post-processor must have a 'name' key")
+
+        try:
+            post_processor = _post_processors[name]
+        except:
+            raise ValueError(f"invalid post-processor '{name}'")
 
         if "parameters" in options:
             return post_processor(**options["parameters"])
@@ -25,6 +33,12 @@ class Divide:
     Number = TypeVar("Number", int, float, Decimal)
 
     def __init__(self, denominator: int) -> None:
+        if denominator <= 0:
+            raise ValueError(
+                "post-processor 'divide': "
+                "'denominator' parameter must be a positive integer"
+            )
+
         self.denominator = denominator
 
     def apply(self, value: Number) -> Number:
