@@ -9,7 +9,15 @@ T = TypeVar("T")
 class Validator(ABC):
     @classmethod
     def build(cls, options: dict) -> "Validator":
-        validator = _validators[options["name"]]
+        try:
+            name = options["name"]
+        except:
+            raise ValueError("validator must have a 'name' key")
+
+        try:
+            validator = _validators[name]
+        except:
+            raise ValueError(f"invalid validator '{name}'")
 
         if "parameters" in options:
             return validator(**options["parameters"])
