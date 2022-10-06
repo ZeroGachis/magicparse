@@ -26,3 +26,34 @@ schema = {
 
 rows, errors= csvmagic.parse(data="...", schema=schema)
 ```
+
+
+## API
+
+### File types
+
+- CSV (with or without header)
+- Columnar
+
+### Fields
+
+#### Types
+
+- str
+- int
+- decimal
+
+#### Pre-processors
+
+- left-pad-zeroes
+- map
+- replace
+- strip-whitespaces
+
+#### Validators
+
+- regex-matches
+
+#### Post-processors
+
+- divide
