@@ -53,9 +53,9 @@ class Schema(ABC):
 
 
 class CsvSchema(Schema):
-    def __init__(self, schema: Schema) -> None:
-        self.has_header = schema["has_header"]
-        self.delimiter = schema["delimiter"]
+    def __init__(self, schema: Dict[str, Any]) -> None:
+        self.has_header = schema.get("has_header", False)
+        self.delimiter = schema.get("delimiter", ",")
         self.fields = [CsvField(field) for field in schema["fields"]]
 
     def get_reader(self, data: str):
@@ -65,7 +65,7 @@ class CsvSchema(Schema):
 
 
 class ColumnarSchema(Schema):
-    def __init__(self, schema: Schema) -> None:
+    def __init__(self, schema: Dict[str, Any]) -> None:
         self.has_header = False
         self.fields = [ColumnarField(field) for field in schema["fields"]]
 
