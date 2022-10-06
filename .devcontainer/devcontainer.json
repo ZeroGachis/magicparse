@@ -1,6 +1,6 @@
 {
     "name": "csvmagic",
-    "dockerComposeFile": ["../docker-compose.yml"],
+    "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.override.yml"],
     "service": "csvmagic",
     "workspaceFolder": "/home/src/csvmagic/",
     "shutdownAction": "stopCompose",

@@ -3,3 +3,6 @@ __pycache__
 
 # Demo artifacts
 demo/
+
+# Docker dev env
+docker-compose.override.yml

@@ -5,8 +5,9 @@ services:
   csvmagic:
     build:
       context: .
+      args:
+        - USERNAME=csvmagic
     tty: true
     working_dir: /home/src/csvmagic
-
     volumes:
       - .:/home/src/csvmagic
