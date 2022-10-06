@@ -17,7 +17,7 @@ schema = {
         {"key": "label", "column-number": 3, "type": "str"},
         {"key": "family-code", "column-number": 8, "type": "str"},
         {"key": "vat", "column-number": 10, "type": "decimal"},
-        {"key": "initial-price", "column-number": 11, "type": "decimal"},
+        {"key": "initial-price", "column-number": 11, "type": "decimal", "post-processors": {"name": "divide", "parameters": {"denominator": 100}}},
         {"key": "unit-of-measurement", "column-number": 12, "type": "int", "pre-processors": [{"name": "map", "parameters": {"values": {"K": 0, "A": 1, "L": 2}}}]},
         {"key": "volume", "column-number": 13, "type": "decimal"},
     ]
