@@ -1,4 +1,4 @@
-from csvmagic.validators import RegexMatches, Validator
+from magicparse.validators import RegexMatches, Validator
 import pytest
 import re
 from unittest import TestCase

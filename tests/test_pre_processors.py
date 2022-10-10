@@ -1,4 +1,4 @@
-from csvmagic.pre_processors import (
+from magicparse.pre_processors import (
     LeftPadZeroes,
     Map,
     PreProcessor,

@@ -1,11 +1,11 @@
 from decimal import Decimal
 
 import pytest
-from csvmagic.converters import DecimalConverter, StrConverter
-from csvmagic.fields import ColumnarField, CsvField, Field
-from csvmagic.post_processors import Divide
-from csvmagic.pre_processors import Replace, StripWhitespaces
-from csvmagic.validators import RegexMatches
+from magicparse.converters import DecimalConverter, StrConverter
+from magicparse.fields import ColumnarField, CsvField, Field
+from magicparse.post_processors import Divide
+from magicparse.pre_processors import Replace, StripWhitespaces
+from magicparse.validators import RegexMatches
 
 
 class DummyField(Field):

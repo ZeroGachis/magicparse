@@ -1,14 +1,14 @@
 from setuptools import setup
 
 setup(
-    name="csvmagic",
+    name="magicparse",
     version="0.1.0",
-    description="Declarative parser for CSV and columnar data",
+    description="Declarative parser",
     author="ZG",
     author_email="dev@zero-gachis.com",
     python_requires=">=3.9.0",
-    url="https://github.com/ZeroGachis/csvmagic",
+    url="https://github.com/ZeroGachis/magicparse",
     packages=[
-        "csvmagic",
+        "magicparse",
     ],
 )

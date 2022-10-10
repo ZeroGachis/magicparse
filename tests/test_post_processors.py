@@ -1,5 +1,5 @@
 from decimal import Decimal
-from csvmagic.post_processors import Divide, PostProcessor
+from magicparse.post_processors import Divide, PostProcessor
 import pytest
 from unittest import TestCase
 

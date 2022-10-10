@@ -1,4 +1,4 @@
-from csvmagic.converters import Converter, DecimalConverter, IntConverter, StrConverter
+from magicparse.converters import Converter, DecimalConverter, IntConverter, StrConverter
 from decimal import Decimal
 import pytest
 from unittest import TestCase

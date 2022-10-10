@@ -2,12 +2,12 @@ version: '3.0'
 
 services:
 
-  csvmagic:
+  magicparse:
     build:
       context: .
       args:
-        - USERNAME=csvmagic
+        - USERNAME=magicparse
     tty: true
-    working_dir: /home/src/csvmagic
+    working_dir: /home/src/magicparse
     volumes:
-      - .:/home/src/csvmagic
+      - .:/home/src/magicparse

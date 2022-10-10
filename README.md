@@ -1,11 +1,11 @@
-# csvmagic 🛸
+# magicparse 🛸
 
-Declarative parser for CSV and columnar data
+Declarative parser
 
 ## Usage
 
 ```python
-import csvmagic
+import magicparse
 
 
 schema = {
@@ -24,7 +24,7 @@ schema = {
 }
 
 
-rows, errors= csvmagic.parse(data="...", schema=schema)
+rows, errors= magicparse.parse(data="...", schema=schema)
 ```
 
 

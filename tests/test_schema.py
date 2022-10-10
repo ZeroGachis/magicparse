@@ -1,6 +1,6 @@
-from csvmagic import Schema
-from csvmagic.schema import ColumnarSchema, CsvSchema
-from csvmagic.fields import ColumnarField, CsvField
+from magicparse import Schema
+from magicparse.schema import ColumnarSchema, CsvSchema
+from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
 

@@ -10,7 +10,7 @@ RUN \
     groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME
 
-WORKDIR /home/src/csvmagic
+WORKDIR /home/src/magicparse
 
 RUN pip install pytest
 
