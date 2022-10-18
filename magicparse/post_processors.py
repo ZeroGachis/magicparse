@@ -1,12 +1,9 @@
-from abc import ABC, abstractmethod
+from .transform import Transform
 from decimal import Decimal
 from typing import TypeVar
 
 
-T = TypeVar("T")
-
-
-class PostProcessor(ABC):
+class PostProcessor(Transform):
     @classmethod
     def build(cls, options: dict) -> "PostProcessor":
         try:
@@ -24,12 +21,8 @@ class PostProcessor(ABC):
         else:
             return post_processor()
 
-    @abstractmethod
-    def apply(self, value: T) -> T:
-        pass
 
-
-class Divide:
+class Divide(PostProcessor):
     Number = TypeVar("Number", int, float, Decimal)
 
     def __init__(self, denominator: int) -> None:
@@ -44,7 +37,8 @@ class Divide:
     def apply(self, value: Number) -> Number:
         return value / self.denominator
 
+    def key() -> str:
+        return "divide"
 
-_post_processors = {
-    "divide": Divide,
-}
+
+_post_processors = {post_processor.key(): post_processor for post_processor in [Divide]}

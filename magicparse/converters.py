@@ -1,8 +1,8 @@
-from abc import ABC, abstractmethod
+from .transform import Transform
 from decimal import Decimal
 
 
-class Converter(ABC):
+class Converter(Transform):
     @classmethod
     def build(cls, options) -> "Converter":
         try:
@@ -15,14 +15,13 @@ class Converter(ABC):
         except:
             raise ValueError(f"invalid type '{_type}'")
 
-    @abstractmethod
-    def apply(self, value):
-        pass
-
 
 class StrConverter(Converter):
     def apply(self, value: str) -> str:
         return value
+
+    def key() -> str:
+        return "str"
 
 
 class IntConverter(Converter):
@@ -32,6 +31,9 @@ class IntConverter(Converter):
         except:
             raise ValueError("value is not a valid integer")
 
+    def key() -> str:
+        return "int"
+
 
 class DecimalConverter(Converter):
     def apply(self, value: str) -> Decimal:
@@ -40,5 +42,10 @@ class DecimalConverter(Converter):
         except:
             raise ValueError("value is not a valid decimal")
 
+    def key() -> str:
+        return "decimal"
 
-_types = {"str": StrConverter, "int": IntConverter, "decimal": DecimalConverter}
+
+_types = {
+    _type.key(): _type for _type in [StrConverter, IntConverter, DecimalConverter]
+}

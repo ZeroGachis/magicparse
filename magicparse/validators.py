@@ -1,12 +1,8 @@
-from abc import ABC, abstractmethod
+from .transform import Transform
 import re
-from typing import TypeVar
 
 
-T = TypeVar("T")
-
-
-class Validator(ABC):
+class Validator(Transform):
     @classmethod
     def build(cls, options: dict) -> "Validator":
         try:
@@ -24,10 +20,6 @@ class Validator(ABC):
         else:
             return validator()
 
-    @abstractmethod
-    def apply(self, value: T) -> T:
-        pass
-
 
 class RegexMatches(Validator):
     def __init__(self, pattern: str) -> None:
@@ -39,7 +31,8 @@ class RegexMatches(Validator):
 
         raise ValueError(f"string does not match regex '{self.pattern.pattern}'")
 
+    def key() -> str:
+        return "regex-matches"
 
-_validators = {
-    "regex-matches": RegexMatches,
-}
+
+_validators = {validator.key(): validator for validator in [RegexMatches]}
