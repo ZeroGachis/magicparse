@@ -10,7 +10,7 @@ class PreProcessor(Transform):
             raise ValueError("pre-processor must have a 'name' key")
 
         try:
-            pre_processor = _pre_processors[name]
+            pre_processor = cls.registry[name]
         except:
             raise ValueError(f"invalid pre-processor '{name}'")
 
@@ -68,7 +68,4 @@ class StripWhitespaces(PreProcessor):
         return "strip-whitespaces"
 
 
-_pre_processors = {
-    pre_processor.key(): pre_processor
-    for pre_processor in [LeftPadZeroes, Map, Replace, StripWhitespaces]
-}
+builtins = [LeftPadZeroes, Map, Replace, StripWhitespaces]

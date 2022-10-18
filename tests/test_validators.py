@@ -47,3 +47,20 @@ class TestRegexMatches(TestCase):
             ValueError, match=r"string does not match regex '\^\\d\{13\}\$'"
         ):
             validator.apply("hello")
+
+
+class TestRegister(TestCase):
+    class IsTheAnswerValidator(Validator):
+        def key() -> str:
+            return "is-the-answer"
+
+        def apply(self, value):
+            if value == 42:
+                return value
+            raise ValueError(f"{value} is not the answer !")
+
+    def test_register(self):
+        Validator.register(self.IsTheAnswerValidator)
+
+        validator = Validator.build({"name": "is-the-answer"})
+        assert isinstance(validator, self.IsTheAnswerValidator)

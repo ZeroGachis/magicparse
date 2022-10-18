@@ -11,7 +11,7 @@ class Converter(Transform):
             raise ValueError("missing key 'type'")
 
         try:
-            return _types[_type]()
+            return cls.registry[_type]()
         except:
             raise ValueError(f"invalid type '{_type}'")
 
@@ -46,6 +46,4 @@ class DecimalConverter(Converter):
         return "decimal"
 
 
-_types = {
-    _type.key(): _type for _type in [StrConverter, IntConverter, DecimalConverter]
-}
+builtins = [StrConverter, IntConverter, DecimalConverter]

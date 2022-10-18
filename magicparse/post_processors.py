@@ -12,7 +12,7 @@ class PostProcessor(Transform):
             raise ValueError("post-processor must have a 'name' key")
 
         try:
-            post_processor = _post_processors[name]
+            post_processor = cls.registry[name]
         except:
             raise ValueError(f"invalid post-processor '{name}'")
 
@@ -41,4 +41,4 @@ class Divide(PostProcessor):
         return "divide"
 
 
-_post_processors = {post_processor.key(): post_processor for post_processor in [Divide]}
+builtins = [Divide]

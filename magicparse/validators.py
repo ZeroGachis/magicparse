@@ -11,7 +11,7 @@ class Validator(Transform):
             raise ValueError("validator must have a 'name' key")
 
         try:
-            validator = _validators[name]
+            validator = cls.registry[name]
         except:
             raise ValueError(f"invalid validator '{name}'")
 
@@ -35,4 +35,4 @@ class RegexMatches(Validator):
         return "regex-matches"
 
 
-_validators = {validator.key(): validator for validator in [RegexMatches]}
+builtins = [RegexMatches]

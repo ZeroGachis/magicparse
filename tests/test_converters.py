@@ -1,4 +1,10 @@
-from magicparse.converters import Converter, DecimalConverter, IntConverter, StrConverter
+from uuid import UUID
+from magicparse.converters import (
+    Converter,
+    DecimalConverter,
+    IntConverter,
+    StrConverter,
+)
 from decimal import Decimal
 import pytest
 from unittest import TestCase
@@ -54,3 +60,18 @@ class TestDecimal(TestCase):
 
         with pytest.raises(ValueError, match="value is not a valid decimal"):
             converter.apply("abc")
+
+
+class TestRegister(TestCase):
+    class GuidConverter(Converter):
+        def key() -> str:
+            return "guid"
+
+        def apply(self, value):
+            return UUID(value)
+
+    def test_register(self):
+        Converter.register(self.GuidConverter)
+
+        converter = Converter.build({"type": "guid"})
+        assert isinstance(converter, self.GuidConverter)
