@@ -99,3 +99,18 @@ class TestStripWhitespaces(TestCase):
     def test_success(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
         assert pre_processor.apply("    an input     ") == "an input"
+
+
+class TestRegister(TestCase):
+    class YesPreProcessor(PreProcessor):
+        def key() -> str:
+            return "yes"
+
+        def apply(self, value):
+            return f"YES {value}"
+
+    def test_register(self):
+        PreProcessor.register(self.YesPreProcessor)
+
+        pre_processor = PreProcessor.build({"name": "yes"})
+        assert isinstance(pre_processor, self.YesPreProcessor)

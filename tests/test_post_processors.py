@@ -47,3 +47,18 @@ class TestDivide(TestCase):
             {"name": "divide", "parameters": {"denominator": 100}}
         )
         assert post_processor.apply(Decimal("1.63")) == Decimal("0.0163")
+
+
+class TestRegister(TestCase):
+    class NoThanksPostProcessor(PostProcessor):
+        def key() -> str:
+            return "no-thanks"
+
+        def apply(self, value):
+            return f"{value} ? No thanks"
+
+    def test_register(self):
+        PostProcessor.register(self.NoThanksPostProcessor)
+
+        post_processor = PostProcessor.build({"name": "no-thanks"})
+        assert isinstance(post_processor, self.NoThanksPostProcessor)

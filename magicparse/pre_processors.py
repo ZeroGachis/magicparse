@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
+from .transform import Transform
 
 
-class PreProcessor(ABC):
+class PreProcessor(Transform):
     @classmethod
     def build(cls, options: dict) -> "PreProcessor":
         try:
@@ -10,7 +10,7 @@ class PreProcessor(ABC):
             raise ValueError("pre-processor must have a 'name' key")
 
         try:
-            pre_processor = _pre_processors[name]
+            pre_processor = cls.registry[name]
         except:
             raise ValueError(f"invalid pre-processor '{name}'")
 
@@ -19,10 +19,6 @@ class PreProcessor(ABC):
         else:
             return pre_processor()
 
-    @abstractmethod
-    def apply(value: str) -> str:
-        pass
-
 
 class LeftPadZeroes(PreProcessor):
     def __init__(self, width: int) -> None:
@@ -30,6 +26,9 @@ class LeftPadZeroes(PreProcessor):
 
     def apply(self, value: str) -> str:
         return value.zfill(self.width)
+
+    def key() -> str:
+        return "left-pad-zeroes"
 
 
 class Map(PreProcessor):
@@ -45,6 +44,9 @@ class Map(PreProcessor):
                 f"value '{value}' does not map to any values in [{self._keys}]"
             )
 
+    def key() -> str:
+        return "map"
+
 
 class Replace(PreProcessor):
     def __init__(self, pattern: str, replacement: str) -> None:
@@ -54,15 +56,16 @@ class Replace(PreProcessor):
     def apply(self, value: str) -> str:
         return value.replace(self.pattern, self.replacement)
 
+    def key() -> str:
+        return "replace"
+
 
 class StripWhitespaces(PreProcessor):
     def apply(self, value: str) -> str:
         return value.strip()
 
+    def key() -> str:
+        return "strip-whitespaces"
 
-_pre_processors = {
-    "left-pad-zeroes": LeftPadZeroes,
-    "map": Map,
-    "replace": Replace,
-    "strip-whitespaces": StripWhitespaces,
-}
+
+builtins = [LeftPadZeroes, Map, Replace, StripWhitespaces]

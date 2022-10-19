@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from .converters import Converter
+from .type_converters import TypeConverter
 from .post_processors import PostProcessor
 from .pre_processors import PreProcessor
 from .validators import Validator
@@ -12,13 +12,15 @@ class Field(ABC):
         pre_processors = [
             PreProcessor.build(item) for item in options.get("pre-processors", [])
         ]
-        converter = Converter.build(options)
+        type_converter = TypeConverter.build(options)
         validators = [Validator.build(item) for item in options.get("validators", [])]
         post_processors = [
             PostProcessor.build(item) for item in options.get("post-processors", [])
         ]
 
-        self.transforms = pre_processors + [converter] + validators + post_processors
+        self.transforms = (
+            pre_processors + [type_converter] + validators + post_processors
+        )
 
     def _process_raw_value(self, raw_value: str):
         value = raw_value

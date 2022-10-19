@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 import pytest
-from magicparse.converters import DecimalConverter, StrConverter
+from magicparse.type_converters import DecimalConverter, StrConverter
 from magicparse.fields import ColumnarField, CsvField, Field
 from magicparse.post_processors import Divide
 from magicparse.pre_processors import Replace, StripWhitespaces
