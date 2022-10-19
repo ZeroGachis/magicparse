@@ -4,6 +4,8 @@ Declarative parser
 
 ## Usage
 
+### Parse content
+
 ```python
 import magicparse
 
@@ -27,6 +29,34 @@ schema = {
 rows, errors= magicparse.parse(data="...", schema=schema)
 ```
 
+
+### Register a custom transform and parse content
+
+```python
+from uuid import UUID
+import magicparse
+
+class GuidConverter(magicparse.Converter):
+    def key() -> str:
+        return "guid"
+
+    def apply(self, value):
+        return UUID(value)
+
+
+magicparse.register(GuidConverter)
+
+schema = Schema.build(
+    {
+        "file_type": "csv",
+        "fields": [{"key": "shop-guid", "type": "guid", "column-number": 1}],
+    }
+)
+
+rows, errors = schema.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2")
+assert rows == [{"shop-guid": "13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2"}]
+assert not errors
+```
 
 ## API
 
