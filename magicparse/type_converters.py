@@ -2,9 +2,9 @@ from .transform import Transform
 from decimal import Decimal
 
 
-class Converter(Transform):
+class TypeConverter(Transform):
     @classmethod
-    def build(cls, options) -> "Converter":
+    def build(cls, options) -> "TypeConverter":
         try:
             _type = options["type"]
         except:
@@ -16,7 +16,7 @@ class Converter(Transform):
             raise ValueError(f"invalid type '{_type}'")
 
 
-class StrConverter(Converter):
+class StrConverter(TypeConverter):
     def apply(self, value: str) -> str:
         return value
 
@@ -24,7 +24,7 @@ class StrConverter(Converter):
         return "str"
 
 
-class IntConverter(Converter):
+class IntConverter(TypeConverter):
     def apply(self, value: str) -> int:
         try:
             return int(value)
@@ -35,7 +35,7 @@ class IntConverter(Converter):
         return "int"
 
 
-class DecimalConverter(Converter):
+class DecimalConverter(TypeConverter):
     def apply(self, value: str) -> Decimal:
         try:
             return Decimal(value)

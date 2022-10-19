@@ -1,14 +1,14 @@
 from .schema import Schema
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
-from .converters import Converter, builtins as builtins_converters
 from .transform import Transform
+from .type_converters import TypeConverter, builtins as builtins_type_converters
 from typing import Any, Dict, List, Tuple, Union
 from .validators import Validator, builtins as builtins_validators
 
 
 __all__ = [
-    "Converter",
+    "TypeConverter",
     "parse",
     "PostProcessor",
     "PreProcessor",
@@ -27,8 +27,8 @@ def register(transforms: Union[Transform, List[Transform]]) -> None:
         transforms = [transforms]
 
     for transform in transforms:
-        if issubclass(transform, Converter):
-            Converter.register(transform)
+        if issubclass(transform, TypeConverter):
+            TypeConverter.register(transform)
         elif issubclass(transform, PostProcessor):
             PostProcessor.register(transform)
         elif issubclass(transform, PreProcessor):
@@ -41,7 +41,7 @@ def register(transforms: Union[Transform, List[Transform]]) -> None:
             )
 
 
-register(builtins_converters)
-register(builtins_post_processors)
 register(builtins_pre_processors)
+register(builtins_type_converters)
 register(builtins_validators)
+register(builtins_post_processors)
