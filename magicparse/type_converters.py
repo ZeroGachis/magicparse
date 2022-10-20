@@ -20,6 +20,7 @@ class StrConverter(TypeConverter):
     def apply(self, value: str) -> str:
         return value
 
+    @staticmethod
     def key() -> str:
         return "str"
 
@@ -31,6 +32,7 @@ class IntConverter(TypeConverter):
         except:
             raise ValueError("value is not a valid integer")
 
+    @staticmethod
     def key() -> str:
         return "int"
 
@@ -42,6 +44,7 @@ class DecimalConverter(TypeConverter):
         except:
             raise ValueError("value is not a valid decimal")
 
+    @staticmethod
     def key() -> str:
         return "decimal"
 

@@ -37,6 +37,7 @@ from uuid import UUID
 import magicparse
 
 class GuidConverter(magicparse.Converter):
+    @staticmethod
     def key() -> str:
         return "guid"
 

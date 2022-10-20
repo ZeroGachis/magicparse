@@ -28,6 +28,7 @@ class LeftPadZeroes(PreProcessor):
     def apply(self, value: str) -> str:
         return value.zfill(self.width)
 
+    @staticmethod
     def key() -> str:
         return "left-pad-zeroes"
 
@@ -45,6 +46,7 @@ class Map(PreProcessor):
                 f"value '{value}' does not map to any values in [{self._keys}]"
             )
 
+    @staticmethod
     def key() -> str:
         return "map"
 
@@ -57,6 +59,7 @@ class Replace(PreProcessor):
     def apply(self, value: str) -> str:
         return value.replace(self.pattern, self.replacement)
 
+    @staticmethod
     def key() -> str:
         return "replace"
 
@@ -65,6 +68,7 @@ class StripWhitespaces(PreProcessor):
     def apply(self, value: str) -> str:
         return value.strip()
 
+    @staticmethod
     def key() -> str:
         return "strip-whitespaces"
 
@@ -88,6 +92,7 @@ class RegexExtract(PreProcessor):
 
         return match.group("value")
 
+    @staticmethod
     def key() -> str:
         return "regex-extract"
 

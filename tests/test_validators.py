@@ -51,6 +51,7 @@ class TestRegexMatches(TestCase):
 
 class TestRegister(TestCase):
     class IsTheAnswerValidator(Validator):
+        @staticmethod
         def key() -> str:
             return "is-the-answer"
 
