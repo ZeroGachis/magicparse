@@ -1,7 +1,9 @@
+import re
 from magicparse.pre_processors import (
     LeftPadZeroes,
     Map,
     PreProcessor,
+    RegexExtract,
     Replace,
     StripWhitespaces,
 )
@@ -35,6 +37,17 @@ class TestBuild(TestCase):
     def test_strip_whitespaces(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
         assert isinstance(pre_processor, StripWhitespaces)
+
+    def test_regex_extract(self):
+        pre_processor = PreProcessor.build(
+            {
+                "name": "regex-extract",
+                "parameters": {"pattern": "^xxx(?P<value>\\d{13})xxx$"},
+            }
+        )
+        assert isinstance(pre_processor, RegexExtract)
+        assert isinstance(pre_processor.pattern, re.Pattern)
+        assert pre_processor.pattern.pattern == "^xxx(?P<value>\\d{13})xxx$"
 
     def test_unknown(self):
         with pytest.raises(ValueError, match="invalid pre-processor 'anything'"):
@@ -99,6 +112,41 @@ class TestStripWhitespaces(TestCase):
     def test_success(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
         assert pre_processor.apply("    an input     ") == "an input"
+
+
+class TestRegexExtract(TestCase):
+    def test_build_without_value_group(self):
+        with pytest.raises(
+            ValueError,
+            match=r"regex-extract's pattern must contain a group named 'value'",
+        ):
+            PreProcessor.build(
+                {"name": "regex-extract", "parameters": {"pattern": "xxx"}}
+            )
+
+    def test_pattern_not_found(self):
+        pre_processor = PreProcessor.build(
+            {
+                "name": "regex-extract",
+                "parameters": {"pattern": "^xxx(?P<value>\\d{13})xxx$"},
+            }
+        )
+        with pytest.raises(ValueError) as error:
+            pre_processor.apply("an input")
+
+        assert (
+            error.value.args[0]
+            == "cannot extract value from pattern '^xxx(?P<value>\\d{13})xxx$'"
+        )
+
+    def test_pattern_found(self):
+        pre_processor = PreProcessor.build(
+            {
+                "name": "regex-extract",
+                "parameters": {"pattern": "^xxx(?P<value>\\d{13})xxx$"},
+            }
+        )
+        pre_processor.apply("xxx9780201379624xxx") == "9780201379624"
 
 
 class TestRegister(TestCase):
