@@ -47,14 +47,14 @@ class GuidConverter(magicparse.Converter):
 
 magicparse.register(GuidConverter)
 
-schema = Schema.build(
-    {
-        "file_type": "csv",
-        "fields": [{"key": "shop-guid", "type": "guid", "column-number": 1}],
-    }
-)
+schema = {
+    "file_type": "csv",
+    "fields": [
+        {"key": "shop-guid", "type": "guid", "column-number": 1}
+    ],
+}
 
-rows, errors = schema.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2")
+rows, errors = magicparse.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2", schema)
 assert rows == [{"shop-guid": "13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2"}]
 assert not errors
 ```
