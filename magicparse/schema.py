@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractstaticmethod
 import csv
 from .fields import Field
 from io import StringIO
@@ -16,14 +16,25 @@ class Schema(ABC):
     def get_reader(self, stream: StringIO):
         pass
 
+    @abstractstaticmethod
+    def key() -> str:
+        pass
+
     @classmethod
     def build(cls, options: Dict[str, Any]) -> "Schema":
-        if options["file_type"] == "csv":
-            return CsvSchema(options)
-        elif options["file_type"] == "columnar":
-            return ColumnarSchema(options)
-        else:
-            raise ValueError("unknown file type")
+        file_type = options["file_type"]
+        schema = cls.registry.get(file_type)
+        if schema:
+            return schema(options)
+
+        raise ValueError("unknown file type")
+
+    @classmethod
+    def register(cls, schema: "Schema") -> None:
+        if not hasattr(cls, "registry"):
+            cls.registry = {}
+
+        cls.registry[schema.key()] = schema
 
     def parse(self, data: Union[str, StringIO]) -> Tuple[List[dict], List[dict]]:
         if isinstance(data, str):
@@ -69,7 +80,18 @@ class CsvSchema(Schema):
     def get_reader(self, stream: StringIO):
         return csv.reader(stream, delimiter=self.delimiter, quoting=csv.QUOTE_NONE)
 
+    @staticmethod
+    def key() -> str:
+        return "csv"
+
 
 class ColumnarSchema(Schema):
     def get_reader(self, stream: StringIO):
         return stream
+
+    @staticmethod
+    def key() -> str:
+        return "columnar"
+
+
+builtins = [ColumnarSchema, CsvSchema]

@@ -1,4 +1,4 @@
-from .schema import Schema
+from .schema import Schema, builtins as builtins_schemas
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
 from .transform import Transform
@@ -22,25 +22,31 @@ def parse(data: str, schema_options: Dict[str, Any]) -> Tuple[List[dict], List[d
     return schema.parse(data)
 
 
-def register(transforms: Union[Transform, List[Transform]]) -> None:
-    if isinstance(transforms, Transform):
-        transforms = [transforms]
+Registrable = Schema | Transform
 
-    for transform in transforms:
-        if issubclass(transform, TypeConverter):
-            TypeConverter.register(transform)
-        elif issubclass(transform, PostProcessor):
-            PostProcessor.register(transform)
-        elif issubclass(transform, PreProcessor):
-            PreProcessor.register(transform)
-        elif issubclass(transform, Validator):
-            Validator.register(transform)
+
+def register(items: Union[Registrable, List[Registrable]]) -> None:
+    if not isinstance(items, list):
+        items = [items]
+
+    for item in items:
+        if issubclass(item, Schema):
+            Schema.register(item)
+        elif issubclass(item, TypeConverter):
+            TypeConverter.register(item)
+        elif issubclass(item, PostProcessor):
+            PostProcessor.register(item)
+        elif issubclass(item, PreProcessor):
+            PreProcessor.register(item)
+        elif issubclass(item, Validator):
+            Validator.register(item)
         else:
             raise ValueError(
                 "transforms must be a subclass of Transform (or a list of it)"
             )
 
 
+register(builtins_schemas)
 register(builtins_pre_processors)
 register(builtins_type_converters)
 register(builtins_validators)
