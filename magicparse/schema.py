@@ -17,7 +17,7 @@ class Schema(ABC):
         pass
 
     @classmethod
-    def build(self, options: Dict[str, Any]) -> "Schema":
+    def build(cls, options: Dict[str, Any]) -> "Schema":
         if options["file_type"] == "csv":
             return CsvSchema(options)
         elif options["file_type"] == "columnar":
