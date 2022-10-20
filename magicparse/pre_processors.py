@@ -1,3 +1,4 @@
+import re
 from .transform import Transform
 
 
@@ -68,4 +69,27 @@ class StripWhitespaces(PreProcessor):
         return "strip-whitespaces"
 
 
-builtins = [LeftPadZeroes, Map, Replace, StripWhitespaces]
+class RegexExtract(PreProcessor):
+    def __init__(self, pattern: str) -> None:
+        pattern = re.compile(pattern)
+        if "value" not in pattern.groupindex:
+            raise ValueError(
+                "regex-extract's pattern must contain a group named 'value'"
+            )
+
+        self.pattern = pattern
+
+    def apply(self, value: str) -> str:
+        match = re.match(self.pattern, value)
+        if not match:
+            raise ValueError(
+                f"cannot extract value from pattern '{self.pattern.pattern}'"
+            )
+
+        return match.group("value")
+
+    def key() -> str:
+        return "regex-extract"
+
+
+builtins = [LeftPadZeroes, Map, RegexExtract, Replace, StripWhitespaces]

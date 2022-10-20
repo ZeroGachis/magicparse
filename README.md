@@ -77,6 +77,7 @@ assert not errors
 
 - left-pad-zeroes
 - map
+- regex-extract
 - replace
 - strip-whitespaces
 
