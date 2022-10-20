@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import csv
 from .fields import Field
 from io import StringIO
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 
 class Schema(ABC):
@@ -13,7 +13,7 @@ class Schema(ABC):
         self.fields = [Field.build(item) for item in options["fields"]]
 
     @abstractmethod
-    def get_reader(self, data: str):
+    def get_reader(self, stream: StringIO):
         pass
 
     @classmethod
@@ -25,8 +25,13 @@ class Schema(ABC):
         else:
             raise ValueError("unknown file type")
 
-    def parse(self, data: str) -> Tuple[List[dict], List[dict]]:
-        reader = self.get_reader(data)
+    def parse(self, data: Union[str, StringIO]) -> Tuple[List[dict], List[dict]]:
+        if isinstance(data, str):
+            stream = StringIO(data)
+        else:
+            stream = data
+
+        reader = self.get_reader(stream)
 
         row_number = 0
         if self.has_header:
@@ -61,10 +66,8 @@ class CsvSchema(Schema):
         self.has_header = options.get("has_header", False)
         self.delimiter = options.get("delimiter", ",")
 
-    def get_reader(self, data: str):
-        return csv.reader(
-            StringIO(data), delimiter=self.delimiter, quoting=csv.QUOTE_NONE
-        )
+    def get_reader(self, stream: StringIO):
+        return csv.reader(stream, delimiter=self.delimiter, quoting=csv.QUOTE_NONE)
 
 
 class ColumnarSchema(Schema):
