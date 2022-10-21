@@ -4,6 +4,10 @@ repos:
     hooks:
       - id: black
         language_version: python3.9
+      - id: black
+        alias: black-on-ci
+        args: ["--check --diff"]
+        stages: [manual]
   -   repo: https://github.com/pycqa/flake8
       rev: 5.0.3
       hooks:

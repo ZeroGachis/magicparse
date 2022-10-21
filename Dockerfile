@@ -15,7 +15,7 @@ WORKDIR /home/src/magicparse
 RUN pip install pytest
 
 COPY . ./
-RUN pip install -e .
+RUN pip install -e .[dev]
 
 USER $USERNAME
 
