@@ -51,6 +51,7 @@ class TestDivide(TestCase):
 
 class TestRegister(TestCase):
     class NoThanksPostProcessor(PostProcessor):
+        @staticmethod
         def key() -> str:
             return "no-thanks"
 

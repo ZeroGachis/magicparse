@@ -31,6 +31,7 @@ class RegexMatches(Validator):
 
         raise ValueError(f"string does not match regex '{self.pattern.pattern}'")
 
+    @staticmethod
     def key() -> str:
         return "regex-matches"
 

@@ -43,6 +43,19 @@ class Field(ABC):
     def error(self, exception: Exception):
         pass
 
+    @classmethod
+    def build(cls, options: dict) -> "Field":
+        column_number = options.get("column-number")
+        if column_number:
+            return CsvField(options)
+
+        column_start = options.get("column-start")
+        column_length = options.get("column-length")
+        if column_start is not None and column_length is not None:
+            return ColumnarField(options)
+
+        raise ValueError("missing field position")
+
 
 class CsvField(Field):
     def __init__(self, options: dict) -> None:

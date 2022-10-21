@@ -37,6 +37,7 @@ class Divide(PostProcessor):
     def apply(self, value: Number) -> Number:
         return value / self.denominator
 
+    @staticmethod
     def key() -> str:
         return "divide"
 

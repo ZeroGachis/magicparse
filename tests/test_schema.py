@@ -213,3 +213,25 @@ class TestColumnarParse(TestCase):
                 "error": "value is not a valid integer",
             }
         ]
+
+
+class TestRegister(TestCase):
+    class PipedSchema(Schema):
+        @staticmethod
+        def key() -> str:
+            return "piped"
+
+        def get_reader(self, stream):
+            for item in stream.read().split("|"):
+                yield [item]
+
+    def test_register(self):
+        Schema.register(self.PipedSchema)
+
+        schema = Schema.build(
+            {
+                "file_type": "piped",
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        assert isinstance(schema, self.PipedSchema)

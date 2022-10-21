@@ -64,6 +64,7 @@ class TestDecimal(TestCase):
 
 class TestRegister(TestCase):
     class GuidConverter(TypeConverter):
+        @staticmethod
         def key() -> str:
             return "guid"
 

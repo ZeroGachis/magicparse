@@ -151,6 +151,7 @@ class TestRegexExtract(TestCase):
 
 class TestRegister(TestCase):
     class YesPreProcessor(PreProcessor):
+        @staticmethod
         def key() -> str:
             return "yes"
 

@@ -37,6 +37,7 @@ from uuid import UUID
 import magicparse
 
 class GuidConverter(magicparse.Converter):
+    @staticmethod
     def key() -> str:
         return "guid"
 
@@ -46,16 +47,44 @@ class GuidConverter(magicparse.Converter):
 
 magicparse.register(GuidConverter)
 
-schema = Schema.build(
-    {
-        "file_type": "csv",
-        "fields": [{"key": "shop-guid", "type": "guid", "column-number": 1}],
-    }
-)
+schema = {
+    "file_type": "csv",
+    "fields": [
+        {"key": "shop-guid", "type": "guid", "column-number": 1}
+    ],
+}
 
-rows, errors = schema.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2")
+rows, errors = magicparse.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2", schema)
 assert rows == [{"shop-guid": "13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2"}]
 assert not errors
+```
+
+### Register a custom schema and parse content
+
+```python
+import magicparse
+
+class PipedSchema(magicparse.Schema):
+    @staticmethod
+    def key() -> str:
+        return "piped"
+
+    def get_reader(self, stream):
+        for item in stream.read().split("|"):
+            yield [item]
+
+magicparse.register(PipedSchema)
+
+schema = {
+    "file_type": "piped",
+    "fields": [
+        {"key": "name", "type": "str", "column-number": 1}
+    ]
+}
+
+rows, errors = magicparse.parse("Joe|William|Jack|Averell", schema)
+assert not errors
+assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name": "Averell"}]
 ```
 
 ## API
