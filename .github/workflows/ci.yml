@@ -17,3 +17,5 @@ jobs:
         run: python3 -m black --check --diff magicparse/ tests/ setup.py
       - name: flake8
         run: python3 -m flake8
+      - name: Pytest
+        run: python3 -m pytest
