@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: [self-hosted, terraform-python]
+    steps:
+      - name: Clean Workspace
+        uses: mickem/clean-after-action@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install source
+        run: pip3 install -e .[dev]
+      - name: Black
+        run: python3 -m black --check --diff magicparse/ tests/ setup.py
+      - name: flake8
+        run: python3 -m flake8

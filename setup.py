@@ -11,4 +11,11 @@ setup(
     packages=[
         "magicparse",
     ],
+    extras_require={
+        "dev": [
+            "black",
+            "flake8",
+            "pytest",
+        ]
+    },
 )
