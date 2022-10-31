@@ -1,22 +1,27 @@
-from abc import ABC, abstractmethod, abstractstaticmethod
+import codecs
+from abc import ABC, abstractmethod
 import csv
 from .fields import Field
-from io import StringIO
-from typing import Any, Dict, List, Tuple, Union
+from io import BytesIO
+from typing import Any, Dict, List, Tuple, Union, Iterable
 
 
 class Schema(ABC):
     fields: List[Field]
-    has_header: bool = False
+    encoding: str
+    has_headers: bool
 
     def __init__(self, options: Dict[str, Any]) -> None:
         self.fields = [Field.build(item) for item in options["fields"]]
 
+        self.has_header = options.get("has_header", False)
+        self.encoding = options.get("encoding", "utf-8")
+
     @abstractmethod
-    def get_reader(self, stream: StringIO):
+    def get_reader(self, stream: BytesIO) -> Iterable:
         pass
 
-    @abstractstaticmethod
+    @staticmethod
     def key() -> str:
         pass
 
@@ -36,9 +41,9 @@ class Schema(ABC):
 
         cls.registry[schema.key()] = schema
 
-    def parse(self, data: Union[str, StringIO]) -> Tuple[List[dict], List[dict]]:
-        if isinstance(data, str):
-            stream = StringIO(data)
+    def parse(self, data: Union[bytes, BytesIO]) -> Tuple[List[dict], List[dict]]:
+        if isinstance(data, bytes):
+            stream = BytesIO(data)
         else:
             stream = data
 
@@ -74,11 +79,15 @@ class Schema(ABC):
 class CsvSchema(Schema):
     def __init__(self, options: Dict[str, Any]) -> None:
         super().__init__(options)
-        self.has_header = options.get("has_header", False)
         self.delimiter = options.get("delimiter", ",")
 
-    def get_reader(self, stream: StringIO):
-        return csv.reader(stream, delimiter=self.delimiter, quoting=csv.QUOTE_NONE)
+    def get_reader(self, stream: BytesIO) -> Iterable[List[str]]:
+        stream_reader = codecs.getreader(self.encoding)
+        stream_content = stream_reader(stream)
+
+        return csv.reader(
+            stream_content, delimiter=self.delimiter, quoting=csv.QUOTE_NONE
+        )
 
     @staticmethod
     def key() -> str:
@@ -86,8 +95,9 @@ class CsvSchema(Schema):
 
 
 class ColumnarSchema(Schema):
-    def get_reader(self, stream: StringIO):
-        return stream
+    def get_reader(self, stream: BytesIO) -> Iterable[str]:
+        stream_reader = codecs.getreader(self.encoding)
+        return stream_reader(stream)
 
     @staticmethod
     def key() -> str:

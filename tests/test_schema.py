@@ -59,13 +59,13 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse("")
+        rows, errors = schema.parse(b"")
         assert not rows
         assert not errors
 
     def test_with_no_field_definition(self):
         schema = Schema.build({"file_type": "csv", "fields": []})
-        rows, errors = schema.parse("a,b,c")
+        rows, errors = schema.parse(b"a,b,c")
         assert rows == [{}]
         assert not errors
 
@@ -76,7 +76,7 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse("1")
+        rows, errors = schema.parse(b"1")
         assert rows == [{"name": "1"}]
         assert not errors
 
@@ -88,7 +88,7 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse("column_name\n1")
+        rows, errors = schema.parse(b"column_name\n1")
         assert rows == [{"name": "1"}]
         assert not errors
 
@@ -99,7 +99,7 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "age", "type": "int", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse("a")
+        rows, errors = schema.parse(b"a")
         assert not rows
         assert errors == [
             {
@@ -117,7 +117,7 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "age", "type": "int", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse("1\na\n2")
+        rows, errors = schema.parse(b"1\na\n2")
         assert rows == [{"age": 1}, {"age": 2}]
         assert errors == [
             {
@@ -144,13 +144,13 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse("")
+        rows, errors = schema.parse(b"")
         assert not rows
         assert not errors
 
     def test_with_no_field_definition(self):
         schema = Schema.build({"file_type": "columnar", "fields": []})
-        rows, errors = schema.parse("a")
+        rows, errors = schema.parse(b"a")
         assert rows == [{}]
         assert not errors
 
@@ -168,7 +168,7 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse("1")
+        rows, errors = schema.parse(b"1")
         assert rows == [{"name": "1"}]
         assert not errors
 
@@ -181,7 +181,7 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse("a")
+        rows, errors = schema.parse(b"a")
         assert not rows
         assert errors == [
             {
@@ -202,7 +202,7 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse("1\na\n2")
+        rows, errors = schema.parse(b"1\na\n2")
         assert rows == [{"age": 1}, {"age": 2}]
         assert errors == [
             {
