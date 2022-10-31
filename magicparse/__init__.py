@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from .schema import Schema, builtins as builtins_schemas
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
@@ -17,9 +19,11 @@ __all__ = [
 ]
 
 
-def parse(data: str, schema_options: Dict[str, Any]) -> Tuple[List[dict], List[dict]]:
-    schema = Schema.build(schema_options)
-    return schema.parse(data)
+def parse(
+    data: Union[bytes, BytesIO], schema_options: Dict[str, Any]
+) -> Tuple[List[dict], List[dict]]:
+    schema_definition = Schema.build(schema_options)
+    return schema_definition.parse(data)
 
 
 Registrable = Schema | Transform
