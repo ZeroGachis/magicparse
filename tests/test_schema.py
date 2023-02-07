@@ -235,3 +235,22 @@ class TestRegister(TestCase):
             }
         )
         assert isinstance(schema, self.PipedSchema)
+
+
+class TestPostTreatment(TestCase):
+    def test_post_treatment_is_applied(self):
+        def post_treatment(row: dict) -> dict:
+            age = row.pop("age")
+            row["new_age"] = age * 10
+            return row
+
+        schema = Schema.build(
+            {
+                "file_type": "columnar",
+                "fields": [
+                    {"key": "age", "type": "int", "column-start": 0, "column-length": 1}
+                ],
+            }
+        )
+        rows, errors = schema.parse(b"1\na\n2", post_treatment)
+        assert rows == [{"new_age": 10}, {"new_age": 20}]

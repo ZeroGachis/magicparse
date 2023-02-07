@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import csv
 from .fields import Field
 from io import BytesIO
-from typing import Any, Dict, List, Tuple, Union, Iterable
+from typing import Any, Dict, List, Tuple, Union, Iterable, Callable
 
 
 class Schema(ABC):
@@ -41,7 +41,9 @@ class Schema(ABC):
 
         cls.registry[schema.key()] = schema
 
-    def parse(self, data: Union[bytes, BytesIO]) -> Tuple[List[dict], List[dict]]:
+    def parse(
+        self, data: Union[bytes, BytesIO], post_treatment: Callable[[dict], dict] = None
+    ) -> Tuple[List[dict], List[dict]]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -71,6 +73,9 @@ class Schema(ABC):
                 item[field.key] = value
 
             if row_is_valid:
+                if post_treatment is not None:
+                    item = post_treatment(item)
+
                 result.append(item)
 
         return result, errors
