@@ -1,4 +1,5 @@
-from magicparse.validators import RegexMatches, Validator
+from decimal import Decimal
+from magicparse.validators import LessThan, RegexMatches, Validator
 import pytest
 import re
 from unittest import TestCase
@@ -23,6 +24,17 @@ class TestBuild(TestCase):
     def test_no_name_provided(self):
         with pytest.raises(ValueError, match="validator must have a 'name' key"):
             Validator.build({})
+
+    def test_less_than(self):
+        validator = Validator.build(
+            {
+                "name": "less-than",
+                "parameters": {"threshold": "30.1"},
+            }
+        )
+        assert isinstance(validator, LessThan)
+        assert isinstance(validator.threshold, Decimal)
+        assert validator.threshold == Decimal("30.1")
 
 
 class TestRegexMatches(TestCase):
@@ -65,3 +77,28 @@ class TestRegister(TestCase):
 
         validator = Validator.build({"name": "is-the-answer"})
         assert isinstance(validator, self.IsTheAnswerValidator)
+
+
+class TestLessThan(TestCase):
+    def test_is_below_threshold(self):
+        validator = Validator.build(
+            {"name": "less-than", "parameters": {"threshold": "10"}}
+        )
+
+        assert validator.apply(Decimal("9.99999")) == Decimal("9.99999")
+
+    def test_is_above_threshold(self):
+        validator = Validator.build(
+            {"name": "less-than", "parameters": {"threshold": "10"}}
+        )
+
+        with pytest.raises(ValueError, match=r"value is not less than 10"):
+            validator.apply(Decimal("12"))
+
+    def test_is_equal_to_threshold(self):
+        validator = Validator.build(
+            {"name": "less-than", "parameters": {"threshold": "10"}}
+        )
+
+        with pytest.raises(ValueError, match=r"value is not less than 10"):
+            validator.apply(Decimal("10"))
