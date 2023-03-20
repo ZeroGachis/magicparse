@@ -26,7 +26,7 @@ def parse(
     return schema_definition.parse(data)
 
 
-Registrable = Schema | Transform
+Registrable = Union[Schema, Transform]
 
 
 def register(items: Union[Registrable, List[Registrable]]) -> None:
