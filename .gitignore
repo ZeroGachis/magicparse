@@ -6,3 +6,6 @@ demo/
 
 # Docker dev env
 docker-compose.override.yml
+
+# Jetbrains IDEs
+.idea/
