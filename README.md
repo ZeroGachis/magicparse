@@ -101,6 +101,8 @@ assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name":
 - str
 - int
 - decimal
+- datetime (timezone aware)
+- time (timezone aware)
 
 #### Pre-processors
 
@@ -113,6 +115,7 @@ assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name":
 #### Validators
 
 - regex-matches
+- greater-than
 
 #### Post-processors
 
