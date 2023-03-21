@@ -1,5 +1,7 @@
-from .transform import Transform
+from datetime import datetime, time
 from decimal import Decimal
+
+from .transform import Transform
 
 
 class TypeConverter(Transform):
@@ -49,4 +51,40 @@ class DecimalConverter(TypeConverter):
         return "decimal"
 
 
-builtins = [StrConverter, IntConverter, DecimalConverter]
+class TimeConverter(TypeConverter):
+    def apply(self, value: str) -> time:
+        try:
+            parsed = time.fromisoformat(value)
+            if parsed.tzinfo is None:
+                raise ValueError("value is a naïve time reprensentation")
+            return parsed
+        except:
+            raise ValueError("value is not a valid time representation")
+
+    @staticmethod
+    def key() -> str:
+        return "time"
+
+
+class DateTimeConverter(TypeConverter):
+    def apply(self, value: str) -> datetime:
+        try:
+            parsed = datetime.fromisoformat(value)
+            if parsed.tzinfo is None:
+                raise ValueError("value is a naïve datetime reprensentation")
+            return parsed
+        except:
+            raise ValueError("value is not a valid datetime representation")
+
+    @staticmethod
+    def key() -> str:
+        return "datetime"
+
+
+builtins = [
+    StrConverter,
+    IntConverter,
+    DecimalConverter,
+    DateTimeConverter,
+    TimeConverter,
+]

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="magicparse",
-    version="0.1.0",
+    version="0.6.0",
     description="Declarative parser",
     author="ZG",
     author_email="dev@zero-gachis.com",
