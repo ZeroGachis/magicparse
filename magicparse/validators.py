@@ -1,3 +1,4 @@
+from decimal import Decimal
 from .transform import Transform
 import re
 
@@ -36,4 +37,18 @@ class RegexMatches(Validator):
         return "regex-matches"
 
 
-builtins = [RegexMatches]
+class GreaterThan(Validator):
+    def __init__(self, threshold: float) -> None:
+        self.threshold = Decimal(threshold)
+
+    def apply(self, value: Decimal) -> Decimal:
+        if value > self.threshold:
+            return value
+        raise ValueError(f"value must be greater than {self.threshold}")
+
+    @staticmethod
+    def key() -> str:
+        return "greater-than"
+
+
+builtins = [GreaterThan, RegexMatches]

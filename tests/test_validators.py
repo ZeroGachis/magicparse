@@ -1,4 +1,5 @@
-from magicparse.validators import RegexMatches, Validator
+from decimal import Decimal
+from magicparse.validators import GreaterThan, RegexMatches, Validator
 import pytest
 import re
 from unittest import TestCase
@@ -23,6 +24,17 @@ class TestBuild(TestCase):
     def test_no_name_provided(self):
         with pytest.raises(ValueError, match="validator must have a 'name' key"):
             Validator.build({})
+
+    def test_greater_than_params_are_correct(self):
+        validator = Validator.build(
+            {
+                "name": "greater-than",
+                "parameters": {"threshold": 20.2},
+            }
+        )
+        assert isinstance(validator, GreaterThan)
+        assert isinstance(validator.threshold, Decimal)
+        assert validator.threshold == 20.2
 
 
 class TestRegexMatches(TestCase):
@@ -65,3 +77,37 @@ class TestRegister(TestCase):
 
         validator = Validator.build({"name": "is-the-answer"})
         assert isinstance(validator, self.IsTheAnswerValidator)
+
+
+class TestGreaterThanValidator(TestCase):
+    def test_it_successfully_returns_the_value_when_greater_than_threshold(self):
+        validator = Validator.build(
+            {"name": "greater-than", "parameters": {"threshold": 11}}
+        )
+
+        assert validator.apply(12) == 12
+
+    def test_it_successfully_returns_the_value_when_greater_than_decimal_threshold(
+        self,
+    ):
+        validator = Validator.build(
+            {"name": "greater-than", "parameters": {"threshold": 11.4}}
+        )
+
+        assert validator.apply(11.5) == 11.5
+
+    def test_it_raises_an_error_when_the_value_is_lower_than_threshold(self):
+        validator = Validator.build(
+            {"name": "greater-than", "parameters": {"threshold": 10}}
+        )
+
+        with pytest.raises(ValueError, match="value must be greater than 10"):
+            validator.apply(9.9999)
+
+    def test_it_raises_an_error_when_the_value_is_equal_to_threshold(self):
+        validator = Validator.build(
+            {"name": "greater-than", "parameters": {"threshold": 10}}
+        )
+
+        with pytest.raises(ValueError, match="value must be greater than 10"):
+            validator.apply(10)
