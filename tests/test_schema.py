@@ -1,3 +1,4 @@
+from decimal import Decimal
 from magicparse import Schema
 from magicparse.schema import ColumnarSchema, CsvSchema
 from magicparse.fields import ColumnarField, CsvField
@@ -213,6 +214,45 @@ class TestColumnarParse(TestCase):
                 "error": "value is not a valid integer",
             }
         ]
+
+
+class TestQuotingSetting(TestCase):
+    def test_no_quote(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "has_header": True,
+                "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
+            }
+        )
+        rows, errors = schema.parse(b"column_1\n6.66")
+        assert rows == [{"column_1": Decimal("6.66")}]
+        assert not errors
+
+    def test_single_quote(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "quotechar": "'",
+                "has_header": True,
+                "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
+            }
+        )
+        rows, errors = schema.parse(b"column_1\n'6.66'")
+        assert rows == [{"column_1": Decimal("6.66")}]
+        assert not errors
+
+    def test_double_quote(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "has_header": True,
+                "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
+            }
+        )
+        rows, errors = schema.parse(b'column_1\n"6.66"')
+        assert rows == [{"column_1": Decimal("6.66")}]
+        assert not errors
 
 
 class TestRegister(TestCase):
