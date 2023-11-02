@@ -23,6 +23,11 @@ class Schema(ABC):
     def get_reader(self, stream: BytesIO) -> Iterable:
         pass
 
+    def get_stream_readers(self, content: bytes) -> Tuple[Iterable, Iterable]:
+        schema_reader = self.get_reader(BytesIO(content))
+        raw_reader = BytesIO(content)
+        return schema_reader, raw_reader
+
     @staticmethod
     def key() -> str:
         pass
@@ -83,19 +88,18 @@ class Schema(ABC):
         on_valid_parsed_row: OnValidRowCallback,
         on_invalid_parsed_row: OnInvalidRowCallback,
     ) -> None:
-        if isinstance(data, bytes):
-            stream = BytesIO(data)
-        else:
-            stream = data
+        if isinstance(data, BytesIO):
+            data = data.read()
 
-        reader = self.get_reader(stream)
+        reader, raw_stream = self.get_stream_readers(data)
 
         row_number = 0
         if self.has_header:
             next(reader)
+            next(raw_stream)
             row_number += 1
 
-        for row in reader:
+        for row, raw_row in zip(reader, raw_stream):
             errors = []
             row_is_valid = True
             item = {}
@@ -110,9 +114,9 @@ class Schema(ABC):
                 item[field.key] = value
 
             if row_is_valid:
-                on_valid_parsed_row(index=row_number, parsed_row=item, raw_data=row)
+                on_valid_parsed_row(index=row_number, parsed_row=item, raw_data=raw_row)
             else:
-                on_invalid_parsed_row(errors_info=errors, raw_data=row)
+                on_invalid_parsed_row(errors_info=errors, raw_data=raw_row)
 
             row_number += 1
 

@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import Mock
 from magicparse import Schema
 from magicparse.schema import ColumnarSchema, CsvSchema
 from magicparse.fields import ColumnarField, CsvField
@@ -128,6 +129,126 @@ class TestCsvParse(TestCase):
                 "error": "value is not a valid integer",
             }
         ]
+
+
+class TestStreamParse:
+    def test_with_no_data(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"", on_valid_row, on_error_row)
+        assert not on_valid_row.called
+        assert not on_error_row.called
+
+    def test_with_no_field_definition(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build({"file_type": "csv", "fields": []})
+        schema.stream_parse(b"a,b,c\n", on_valid_row, on_error_row)
+        on_valid_row.assert_called_once_with(
+            index=0, parsed_row={}, raw_data=b"a,b,c\n"
+        )
+        assert not on_error_row.called
+
+    def test_without_header(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"1\n", on_valid_row, on_error_row)
+        on_valid_row.assert_called_once_with(
+            index=0, parsed_row={"name": "1"}, raw_data=b"1\n"
+        )
+        assert not on_error_row.called
+
+    def test_with_header(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "has_header": True,
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"column_name\n1\n", on_valid_row, on_error_row)
+
+        on_valid_row.assert_called_once_with(
+            index=1, parsed_row={"name": "1"}, raw_data=b"1\n"
+        )
+        assert not on_error_row.called
+
+    def test_multiple_lines(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"1\n2\n", on_valid_row, on_error_row)
+        assert on_valid_row.call_count == 2
+        on_valid_row.assert_any_call(index=0, parsed_row={"name": "1"}, raw_data=b"1\n")
+        on_valid_row.assert_any_call(index=1, parsed_row={"name": "2"}, raw_data=b"2\n")
+        assert not on_error_row.called
+
+    def test_error_display_row_number(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"a", on_valid_row, on_error_row)
+        assert not on_valid_row.called
+        on_error_row.assert_called_once_with(
+            errors_info=[
+                {
+                    "row-number": 0,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value is not a valid integer",
+                }
+            ],
+            raw_data=b"a",
+        )
+
+    def test_errors_do_not_halt_parsing(self):
+        on_valid_row = Mock()
+        on_error_row = Mock()
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        schema.stream_parse(b"1\na\n2\n", on_valid_row, on_error_row)
+        assert on_valid_row.call_count == 2
+        on_valid_row.assert_any_call(index=0, parsed_row={"age": 1}, raw_data=b"1\n")
+        on_valid_row.assert_any_call(index=2, parsed_row={"age": 2}, raw_data=b"2\n")
+        on_error_row.assert_called_once_with(
+            errors_info=[
+                {
+                    "row-number": 1,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value is not a valid integer",
+                }
+            ],
+            raw_data=b"a\n",
+        )
 
 
 class TestColumnarParse(TestCase):
