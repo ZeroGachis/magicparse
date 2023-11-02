@@ -1,11 +1,12 @@
 from io import BytesIO
+from typing import Any, Dict, List, Tuple, Union
 
+from .callbacks import OnInvalidRowCallback, OnValidRowCallback
 from .schema import Schema, builtins as builtins_schemas
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
 from .transform import Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
-from typing import Any, Dict, List, Tuple, Union
 from .validators import Validator, builtins as builtins_validators
 
 
@@ -24,6 +25,20 @@ def parse(
 ) -> Tuple[List[dict], List[dict]]:
     schema_definition = Schema.build(schema_options)
     return schema_definition.parse(data)
+
+
+def stream_parse(
+    data: Union[bytes, BytesIO],
+    schema_options: Dict[str, Any],
+    on_valid_parsed_row: OnValidRowCallback,
+    on_invalid_parsed_row: OnInvalidRowCallback,
+) -> None:
+    schema_definition = Schema.build(schema_options)
+    return schema_definition.stream_parse(
+        data=data,
+        on_valid_parsed_row=on_valid_parsed_row,
+        on_invalid_parsed_row=on_invalid_parsed_row,
+    )
 
 
 Registrable = Union[Schema, Transform]

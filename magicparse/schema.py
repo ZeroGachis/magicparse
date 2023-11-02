@@ -1,6 +1,8 @@
 import codecs
 from abc import ABC, abstractmethod
 import csv
+
+from magicparse import OnInvalidRowCallback, OnValidRowCallback
 from .fields import Field
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
@@ -74,6 +76,45 @@ class Schema(ABC):
                 result.append(item)
 
         return result, errors
+
+    def stream_parse(
+        self,
+        data: Union[bytes, BytesIO],
+        on_valid_parsed_row: OnValidRowCallback,
+        on_invalid_parsed_row: OnInvalidRowCallback,
+    ) -> None:
+        if isinstance(data, bytes):
+            stream = BytesIO(data)
+        else:
+            stream = data
+
+        reader = self.get_reader(stream)
+
+        row_number = 0
+        if self.has_header:
+            next(reader)
+            row_number += 1
+
+        for row in reader:
+            errors = []
+            row_is_valid = True
+            item = {}
+            for field in self.fields:
+                try:
+                    value = field.read_value(row)
+                except Exception as exc:
+                    errors.append({"row-number": row_number, **field.error(exc)})
+                    row_is_valid = False
+                    continue
+
+                item[field.key] = value
+
+            if row_is_valid:
+                on_valid_parsed_row(index=row_number, parsed_row=item, raw_data=row)
+            else:
+                on_invalid_parsed_row(errors_info=errors, raw_data=row)
+
+            row_number += 1
 
 
 class CsvSchema(Schema):
