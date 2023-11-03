@@ -6,6 +6,7 @@ from magicparse.pre_processors import (
     RegexExtract,
     Replace,
     StripWhitespaces,
+    LeftStrip,
 )
 import pytest
 from unittest import TestCase
@@ -37,6 +38,12 @@ class TestBuild(TestCase):
     def test_strip_whitespaces(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
         assert isinstance(pre_processor, StripWhitespaces)
+
+    def test_left_strip(self):
+        pre_processor = PreProcessor.build(
+            {"name": "left-strip", "parameters": {"characters": "0"}}
+        )
+        assert isinstance(pre_processor, LeftStrip)
 
     def test_regex_extract(self):
         pre_processor = PreProcessor.build(
@@ -112,6 +119,20 @@ class TestStripWhitespaces(TestCase):
     def test_success(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
         assert pre_processor.apply("    an input     ") == "an input"
+
+
+class TestLeftStrip(TestCase):
+    def test_do_nothing(self):
+        pre_processor = PreProcessor.build(
+            {"name": "left-strip", "parameters": {"characters": "0"}}
+        )
+        assert pre_processor.apply("12345") == "12345"
+
+    def test_success(self):
+        pre_processor = PreProcessor.build(
+            {"name": "left-strip", "parameters": {"characters": "0"}}
+        )
+        assert pre_processor.apply("0000012345") == "12345"
 
 
 class TestRegexExtract(TestCase):

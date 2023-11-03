@@ -73,6 +73,18 @@ class StripWhitespaces(PreProcessor):
         return "strip-whitespaces"
 
 
+class LeftStrip(PreProcessor):
+    def __init__(self, characters: str) -> None:
+        self.characters = characters
+
+    def apply(self, value: str) -> str:
+        return value.lstrip(self.characters)
+
+    @staticmethod
+    def key() -> str:
+        return "left-strip"
+
+
 class RegexExtract(PreProcessor):
     def __init__(self, pattern: str) -> None:
         pattern = re.compile(pattern)
@@ -97,4 +109,4 @@ class RegexExtract(PreProcessor):
         return "regex-extract"
 
 
-builtins = [LeftPadZeroes, Map, RegexExtract, Replace, StripWhitespaces]
+builtins = [LeftPadZeroes, Map, RegexExtract, Replace, StripWhitespaces, LeftStrip]

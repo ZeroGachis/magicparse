@@ -111,6 +111,7 @@ assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name":
 - regex-extract
 - replace
 - strip-whitespaces
+- left-strip
 
 #### Validators
 
