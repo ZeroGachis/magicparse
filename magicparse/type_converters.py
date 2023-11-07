@@ -32,7 +32,7 @@ class IntConverter(TypeConverter):
         try:
             return int(value)
         except:
-            raise ValueError("value is not a valid integer")
+            raise ValueError(f"value '{value}' is not a valid integer")
 
     @staticmethod
     def key() -> str:
@@ -44,7 +44,7 @@ class DecimalConverter(TypeConverter):
         try:
             return Decimal(value)
         except:
-            raise ValueError("value is not a valid decimal")
+            raise ValueError(f"value '{value}' is not a valid decimal")
 
     @staticmethod
     def key() -> str:
@@ -56,10 +56,10 @@ class TimeConverter(TypeConverter):
         try:
             parsed = time.fromisoformat(value)
             if parsed.tzinfo is None:
-                raise ValueError("value is a naïve time reprensentation")
+                raise ValueError(f"value '{value}' is a naïve time reprensentation")
             return parsed
         except:
-            raise ValueError("value is not a valid time representation")
+            raise ValueError(f"value '{value}' is not a valid time representation")
 
     @staticmethod
     def key() -> str:
@@ -71,10 +71,10 @@ class DateTimeConverter(TypeConverter):
         try:
             parsed = datetime.fromisoformat(value)
             if parsed.tzinfo is None:
-                raise ValueError("value is a naïve datetime reprensentation")
+                raise ValueError(f"value '{value}' is a naïve datetime reprensentation")
             return parsed
         except:
-            raise ValueError("value is not a valid datetime representation")
+            raise ValueError(f"value '{value}' is not a valid datetime representation")
 
     @staticmethod
     def key() -> str:

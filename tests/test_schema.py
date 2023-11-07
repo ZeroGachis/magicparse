@@ -107,7 +107,7 @@ class TestCsvParse(TestCase):
                 "row-number": 1,
                 "column-number": 1,
                 "field-key": "age",
-                "error": "value is not a valid integer",
+                "error": "value 'a' is not a valid integer",
             }
         ]
 
@@ -125,7 +125,7 @@ class TestCsvParse(TestCase):
                 "row-number": 2,
                 "column-number": 1,
                 "field-key": "age",
-                "error": "value is not a valid integer",
+                "error": "value 'a' is not a valid integer",
             }
         ]
 
@@ -190,7 +190,7 @@ class TestColumnarParse(TestCase):
                 "column-start": 0,
                 "column-length": 1,
                 "field-key": "age",
-                "error": "value is not a valid integer",
+                "error": "value 'a' is not a valid integer",
             }
         ]
 
@@ -211,7 +211,7 @@ class TestColumnarParse(TestCase):
                 "column-start": 0,
                 "column-length": 1,
                 "field-key": "age",
-                "error": "value is not a valid integer",
+                "error": "value 'a' is not a valid integer",
             }
         ]
 

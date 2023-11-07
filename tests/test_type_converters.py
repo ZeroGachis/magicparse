@@ -59,7 +59,7 @@ class TestInt(TestCase):
     def test_apply_failed(self):
         type_converter = TypeConverter.build({"type": "int"})
 
-        with pytest.raises(ValueError, match="value is not a valid integer"):
+        with pytest.raises(ValueError, match="value 'abc' is not a valid integer"):
             type_converter.apply("abc")
 
 
@@ -71,7 +71,7 @@ class TestDecimal(TestCase):
     def test_apply_failed(self):
         type_converter = TypeConverter.build({"type": "decimal"})
 
-        with pytest.raises(ValueError, match="value is not a valid decimal"):
+        with pytest.raises(ValueError, match="value 'abc' is not a valid decimal"):
             type_converter.apply("abc")
 
 
