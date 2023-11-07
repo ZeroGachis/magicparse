@@ -63,11 +63,11 @@ def test_csv_error_format():
     field = CsvField({"key": "ratio", "type": "decimal", "column-number": 1})
 
     with pytest.raises(ValueError) as error:
-        field.read_value(["hello"])
+        field.read_value("hello")
 
     assert field.error(error.value) == {
         "column-number": 1,
-        "error": "value is not a valid decimal",
+        "error": "value 'h' is not a valid decimal",
         "field-key": "ratio",
     }
 
@@ -78,11 +78,11 @@ def test_columnar_error_format():
     )
 
     with pytest.raises(ValueError) as error:
-        field.read_value(["hello"])
+        field.read_value("hello")
 
     assert field.error(error.value) == {
         "column-start": 0,
         "column-length": 5,
-        "error": "value is not a valid decimal",
+        "error": "value 'hello' is not a valid decimal",
         "field-key": "ratio",
     }
