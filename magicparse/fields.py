@@ -18,12 +18,21 @@ class Field(ABC):
             PostProcessor.build(item) for item in options.get("post-processors", [])
         ]
 
+        self.optional = options.get("optional", False)
+
         self.transforms = (
             pre_processors + [type_converter] + validators + post_processors
         )
 
     def _process_raw_value(self, raw_value: str):
         value = raw_value
+        if not raw_value:
+            if self.optional:
+                return None
+            else:
+                raise ValueError(
+                    f"{self.key} field is required but the value was empty"
+                )
         for transform in self.transforms:
             value = transform.apply(value)
         return value
@@ -34,10 +43,7 @@ class Field(ABC):
 
     def read_value(self, row):
         raw_value = self._read_raw_value(row)
-        value = raw_value
-        for transform in self.transforms:
-            value = transform.apply(value)
-        return value
+        return self._process_raw_value(raw_value)
 
     @abstractmethod
     def error(self, exception: Exception):

@@ -86,3 +86,46 @@ def test_columnar_error_format():
         "error": "value 'hello' is not a valid decimal",
         "field-key": "ratio",
     }
+
+
+def test_optional_field():
+    field = DummyField(
+        {
+            "key": "ratio",
+            "type": "decimal",
+            "optional": True,
+            "pre-processors": [
+                {
+                    "name": "replace",
+                    "parameters": {"pattern": "XXX", "replacement": "000"},
+                }
+            ],
+            "post-processors": [{"name": "divide", "parameters": {"denominator": 100}}],
+        }
+    )
+    assert field.read_value("XXX150") == Decimal("1.50")
+    assert field.read_value("") is None
+
+
+def test_required_field():
+    field = DummyField(
+        {
+            "key": "ratio",
+            "type": "decimal",
+            "optional": False,
+        }
+    )
+    assert field.read_value("1.5") == Decimal("1.50")
+
+
+def test_require_field_with_empty_value():
+    field = DummyField(
+        {
+            "key": "pepito",
+            "type": "decimal",
+        }
+    )
+    with pytest.raises(
+        ValueError, match="pepito field is required but the value was empty"
+    ):
+        field.read_value("")
