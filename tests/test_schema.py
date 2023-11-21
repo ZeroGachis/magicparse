@@ -221,6 +221,7 @@ class TestQuotingSetting(TestCase):
         schema = Schema.build(
             {
                 "file_type": "csv",
+                "quotechar": "",
                 "has_header": True,
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
@@ -246,6 +247,7 @@ class TestQuotingSetting(TestCase):
         schema = Schema.build(
             {
                 "file_type": "csv",
+                "quotechar": '"',
                 "has_header": True,
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
@@ -253,6 +255,17 @@ class TestQuotingSetting(TestCase):
         rows, errors = schema.parse(b'column_1\n"6.66"')
         assert rows == [{"column_1": Decimal("6.66")}]
         assert not errors
+
+    def test_asymetrical_quote(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "has_header": True,
+                "fields": [{"key": "column_1", "type": "str", "column-number": 1}],
+            }
+        )
+        rows, errors = schema.parse(b'column_1\n"test ""quoting""')
+        assert rows == [{"column_1": '"test ""quoting""'}]
 
 
 class TestRegister(TestCase):

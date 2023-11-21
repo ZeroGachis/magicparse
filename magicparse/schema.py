@@ -80,16 +80,18 @@ class CsvSchema(Schema):
     def __init__(self, options: Dict[str, Any]) -> None:
         super().__init__(options)
         self.delimiter = options.get("delimiter", ",")
-        self.quotechar = options.get("quotechar", '"')
+        self.quotechar = options.get("quotechar", None)
 
     def get_reader(self, stream: BytesIO) -> Iterable[List[str]]:
         stream_reader = codecs.getreader(self.encoding)
         stream_content = stream_reader(stream)
-
+        csv_quoting = csv.QUOTE_NONE
+        if self.quotechar:
+            csv_quoting = csv.QUOTE_MINIMAL
         return csv.reader(
             stream_content,
             delimiter=self.delimiter,
-            quoting=csv.QUOTE_MINIMAL,
+            quoting=csv_quoting,
             quotechar=self.quotechar,
         )
 
