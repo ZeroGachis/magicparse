@@ -14,6 +14,7 @@ schema = {
     "file_type": "csv",
     "has_header": False,
     "delimiter": ";",
+    "optional": False,
     "fields": [
         {"key": "ean", "column-number": 2, "type": "str", "validators": [{"name": "regex-matches", "parameters": {"pattern": "^\\d{13}$"}}]},
         {"key": "label", "column-number": 3, "type": "str"},
