@@ -78,6 +78,16 @@ class TestLeftPadZeroes(TestCase):
         )
         assert pre_processor.apply("abc") == "0000000abc"
 
+    def test_pad_with_regex(self):
+        pre_processor = PreProcessor.build(
+            {
+                "name": "left-pad-zeroes", 
+                "parameters": {"width": 10, "regex": "[a-z]{7}"},
+            }
+        )
+        assert pre_processor.apply("abc") == "abc"
+        assert pre_processor.apply("abcdefg") == "000abcdefg"
+
 
 class TestMap(TestCase):
     def test_unknown_input(self):

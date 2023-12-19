@@ -1,4 +1,5 @@
 import re
+from typing import Optional
 from .transform import Transform
 
 
@@ -22,11 +23,14 @@ class PreProcessor(Transform):
 
 
 class LeftPadZeroes(PreProcessor):
-    def __init__(self, width: int) -> None:
+    def __init__(self, width: int, regex: Optional[str] = None) -> None:
         self.width = width
+        self.regex = regex
 
     def apply(self, value: str) -> str:
-        return value.zfill(self.width)
+        if self.regex is None or (self.regex and re.match(self.regex, value)):
+            return value.zfill(self.width)
+        return value
 
     @staticmethod
     def key() -> str:
