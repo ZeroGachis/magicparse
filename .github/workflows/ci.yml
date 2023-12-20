@@ -5,17 +5,48 @@ on:
 
 jobs:
   build:
-    runs-on: [self-hosted, terraform-python]
-    steps:
-      - name: Clean Workspace
-        uses: mickem/clean-after-action@v1
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install source
-        run: pip3 install -e .[dev]
-      - name: Black
-        run: python3 -m black --check --diff magicparse/ tests/ setup.py
-      - name: flake8
-        run: python3 -m flake8
-      - name: Pytest
-        run: python3 -m pytest
+    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v2
+    with:
+      image_name: magicparse
+      dockerfile_context: .
+      regitry_url: ghcr.io
+      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+    secrets: inherit
+
+  static-metrics:
+    needs: 
+      [
+        build, 
+      ]
+    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v2
+    with:
+      image_url: ${{ needs.build.outputs.image-url }}
+      workdir: /home/src/magicparse
+      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+      run_command: |
+        black magicparse/ --check --diff
+        flake8
+    secrets: inherit
+  
+  unit-tests:
+    needs: 
+      [
+        build, 
+      ]
+    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v2
+    with:
+      image_url: ${{ needs.build.outputs.image-url }}
+      workdir: /home/src/magicparse
+      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+      run_command: |
+        pytest --verbose --junit-xml reports/unit_tests_results.xml
+      enable_test_report: true
+      test_report_name: "UT Report"
+      test_report_path: reports/unit_tests_results.xml
+      test_report_format: java-junit
+    secrets: inherit
+
+
