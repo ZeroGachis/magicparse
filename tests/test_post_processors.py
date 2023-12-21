@@ -49,6 +49,22 @@ class TestDivide(TestCase):
         assert post_processor.apply(Decimal("1.63")) == Decimal("0.0163")
 
 
+class TestRound(TestCase):
+    def test_with_negative_precision(self):
+        error_message = (
+            "post-processor 'round': "
+            "'precision' parameter must be a positive or zero integer"
+        )
+        with pytest.raises(ValueError, match=error_message):
+            PostProcessor.build({"name": "round", "parameters": {"precision": -2}})
+
+    def test_with_valid_precision(self):
+        post_processor = PostProcessor.build(
+            {"name": "round", "parameters": {"precision": 2}}
+        )
+        assert post_processor.apply(3.14159265359) == 3.14
+
+
 class TestRegister(TestCase):
     class NoThanksPostProcessor(PostProcessor):
         @staticmethod
