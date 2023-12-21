@@ -3,6 +3,10 @@ from io import BytesIO
 from .schema import Schema, builtins as builtins_schemas
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
+from .builders import (
+    Builder,
+    builtins as builtins_composite_processors,
+)
 from .transform import Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
 from typing import Any, Dict, List, Tuple, Union
@@ -44,6 +48,8 @@ def register(items: Union[Registrable, List[Registrable]]) -> None:
             PreProcessor.register(item)
         elif issubclass(item, Validator):
             Validator.register(item)
+        elif issubclass(item, Builder):
+            Builder.register(item)
         else:
             raise ValueError(
                 "transforms must be a subclass of Transform (or a list of it)"
@@ -55,3 +61,4 @@ register(builtins_pre_processors)
 register(builtins_type_converters)
 register(builtins_validators)
 register(builtins_post_processors)
+register(builtins_composite_processors)

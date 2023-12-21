@@ -15,14 +15,84 @@ schema = {
     "has_header": False,
     "delimiter": ";",
     "fields": [
-        {"key": "ean", "column-number": 2, "type": "str", "validators": [{"name": "regex-matches", "parameters": {"pattern": "^\\d{13}$"}}]},
+        {
+            "key": "ean",
+            "column-number": 2,
+            "type": "str",
+            "validators": [
+                {
+                    "name": "regex-matches",
+                    "parameters": {"pattern": "^\\d{13}$"},
+                }
+            ],
+        },
         {"key": "label", "column-number": 3, "type": "str"},
         {"key": "family-code", "column-number": 8, "type": "str"},
-        {"key": "vat", "column-number": 10, "type": "decimal", "optional": False},
-        {"key": "initial-price", "column-number": 11, "type": "decimal", "post-processors": {"name": "divide", "parameters": {"denominator": 100}}},
-        {"key": "unit-of-measurement", "column-number": 12, "type": "int", "pre-processors": [{"name": "map", "parameters": {"values": {"K": 0, "A": 1, "L": 2}}}]},
-        {"key": "volume", "column-number": 13, "type": "decimal", "post-processors": {"name": "round", "parameters": {"precision": 3}}},
-    ]
+        {
+            "key": "vat",
+            "column-number": 10,
+            "type": "decimal",
+            "optional": False,
+        },
+        {
+            "key": "initial-price",
+            "column-number": 11,
+            "type": "decimal",
+            "post-processors": [
+                {
+                    "name": "divide",
+                    "parameters": {"denominator": 100},
+                },
+                {
+                "name": "round",
+                "parameters": {"precision": 3},
+                }
+            ]
+        },
+        {
+            "key": "unit-of-measurement",
+            "column-number": 12,
+            "type": "int",
+            "pre-processors": [
+                {
+                    "name": "map",
+                    "parameters": {"values": {"K": 0, "A": 1, "L": 2}},
+                }
+            ],
+        }
+    ],
+    "computed-fields": [
+        {
+            "key": "code",
+            "type": "str",
+            "builder": {
+                "name": "concat",
+                "parameters": {"fields": ["code_1", "code_2"]},
+            }
+        },
+        {
+            "key": "volume",
+            "type": "decimal",
+            "builder": {
+                "name": "divide",
+                "parameters": {
+                    "numerator": "price",
+                    "denominator": "price_by_unit",
+                },
+            }
+        },
+        {
+            "key": "price_by_unit",
+            "type": "decimal",
+            "builder": {
+                "name": "multiply",
+                "parameters": {
+                    "x_factor": "price",
+                    "y_factor": "unit",
+                }
+            }
+        }
+    ],
 }
 
 
@@ -122,3 +192,13 @@ assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name":
 
 - divide
 - round
+
+### Computed Fields
+
+Types, Pre-processors, Post-processors and validator is same as Field
+
+#### Builder
+
+- concat
+- divide
+- multiply

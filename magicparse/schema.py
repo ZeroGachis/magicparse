@@ -1,7 +1,7 @@
 import codecs
 from abc import ABC, abstractmethod
 import csv
-from .fields import Field
+from .fields import Field, ComputedField
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
 
@@ -13,6 +13,9 @@ class Schema(ABC):
 
     def __init__(self, options: Dict[str, Any]) -> None:
         self.fields = [Field.build(item) for item in options["fields"]]
+        self.computed_fields = [
+            ComputedField.build(item) for item in options.get("computed-fields", [])
+        ]
 
         self.has_header = options.get("has_header", False)
         self.encoding = options.get("encoding", "utf-8")
@@ -69,6 +72,18 @@ class Schema(ABC):
                     continue
 
                 item[field.key] = value
+
+            for computed_field in self.computed_fields:
+                try:
+                    value = computed_field.read_value(item)
+                except Exception as exc:
+                    errors.append(
+                        {"row-number": row_number, **computed_field.error(exc)}
+                    )
+                    row_is_valid = False
+                    continue
+
+                item[computed_field.key] = value
 
             if row_is_valid:
                 result.append(item)
