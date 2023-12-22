@@ -42,4 +42,24 @@ class Divide(PostProcessor):
         return "divide"
 
 
-builtins = [Divide]
+class Round(PostProcessor):
+    Number = TypeVar("Number", int, float, Decimal)
+
+    def __init__(self, precision: int) -> None:
+        if precision < 0:
+            raise ValueError(
+                "post-processor 'round': "
+                "'precision' parameter must be a positive or zero integer"
+            )
+
+        self.precision = precision
+
+    def apply(self, value: Number) -> Number:
+        return round(value, self.precision)
+
+    @staticmethod
+    def key() -> str:
+        return "round"
+
+
+builtins = [Divide, Round]

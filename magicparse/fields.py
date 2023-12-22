@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
+
+from .builders import Builder
 from .type_converters import TypeConverter
 from .post_processors import PostProcessor
 from .pre_processors import PreProcessor
@@ -93,6 +95,21 @@ class ColumnarField(Field):
         return {
             "column-start": self.column_start,
             "column-length": self.column_length,
+            "field-key": self.key,
+            "error": exception.args[0],
+        }
+
+
+class ComputedField(Field):
+    def __init__(self, options: dict) -> None:
+        super().__init__(options)
+        self.builder = Builder.build(options["builder"])
+
+    def _read_raw_value(self, row) -> str:
+        return self.builder.apply(row)
+
+    def error(self, exception: Exception) -> dict:
+        return {
             "field-key": self.key,
             "error": exception.args[0],
         }
