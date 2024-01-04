@@ -11,3 +11,4 @@ services:
     working_dir: /home/src/magicparse
     volumes:
       - .:/home/src/magicparse
+      - /home/src/magicparse/.venv/
