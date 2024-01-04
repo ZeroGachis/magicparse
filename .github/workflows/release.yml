@@ -1,0 +1,93 @@
+name: "Release"
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v3
+    with:
+      image_name: magicparse
+      dockerfile_context: .
+      environment_name: main
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+      regitry_url: ghcr.io
+    secrets: inherit
+
+  static-metrics:
+    needs: 
+      [
+        build, 
+      ]
+    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v3
+    with:
+      image_url: ${{ needs.build.outputs.image-url }}
+      workdir: /home/src/magicparse
+      environment_name: main
+      vault_enabled: false
+      tailscale_enabled: false
+      run_command: |
+        black magicparse/ --check --diff
+        flake8
+    secrets: inherit
+
+  unit-tests:
+    needs: 
+      [
+        build, 
+      ]
+    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v3
+    with:
+      image_url: ${{ needs.build.outputs.image-url }}
+      workdir: /home/src/magicparse
+      run_command: |
+        pytest --verbose --junit-xml reports/unit_tests_results.xml
+      environment_name: main
+      vault_enabled: false
+      tailscale_enabled: false
+      enable_test_report: true
+      test_report_name: "UT Report"
+      test_report_path: reports/unit_tests_results.xml
+      test_report_format: java-junit
+    secrets: inherit
+
+  publish:
+    needs: 
+      [
+        build,
+        unit-tests,
+        static-metrics,
+      ]
+    uses: ZeroGachis/.github/.github/workflows/python-publish.yml@v3
+    with:
+      python_version: "3.10"
+      environment_name: main
+
+  github-release:
+    needs: [
+      build,
+      static-metrics,
+      unit-tests,
+      publish,
+    ]
+    uses: ZeroGachis/.github/.github/workflows/gh-release-notes.yml@v3
+        
+  detroy:
+    if: always()
+    needs:
+      [
+        build,
+        unit-tests,
+        static-metrics,
+        publish,
+        github-release,
+      ]
+    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v3
+    with:
+      image_name: magicparse
+      image_version: ${{ needs.build.outputs.image-version }}
+      environment_name: main
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+    secrets: inherit

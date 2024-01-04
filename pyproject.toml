@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "magicparse"
-version = "0.10.1"
+version = "0.0.0"
 description = "Declarative parser 🛸"
 authors = ["Smartway <dev@zero-gachis.com>"]
 readme = "README.md"
@@ -14,10 +14,17 @@ flake8-pyproject = "~1.2.3"
 black = "^23.12.1"
 flake8 = "^6.1.0"
 pytest = "^7.4.4"
+awscli = "~1"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.2.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
+build-backend = "poetry_dynamic_versioning.backend"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+pattern  = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?"
 
 [tool.flake8]
 max-line-length = 88
