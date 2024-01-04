@@ -221,7 +221,6 @@ class TestQuotingSetting(TestCase):
         schema = Schema.build(
             {
                 "file_type": "csv",
-                "quotechar": "",
                 "has_header": True,
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
