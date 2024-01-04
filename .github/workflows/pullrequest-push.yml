@@ -1,17 +1,21 @@
-name: CI
+name: "PullRequest-Push"
 
 on:
+  workflow_dispatch:
   pull_request:
+  push:
+    branches:
+      - "main"
 
 jobs:
   build:
-    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v2
+    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v3
     with:
       image_name: magicparse
       dockerfile_context: .
-      regitry_url: ghcr.io
       vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
       vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+      regitry_url: ghcr.io
     secrets: inherit
 
   static-metrics:
@@ -19,34 +23,48 @@ jobs:
       [
         build, 
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v2
+    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v3
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /home/src/magicparse
-      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
-      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+      vault_enabled: false
+      tailscale_enabled: false
       run_command: |
         black magicparse/ --check --diff
         flake8
     secrets: inherit
-  
+
   unit-tests:
     needs: 
       [
         build, 
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v2
+    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v3
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /home/src/magicparse
-      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
-      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
       run_command: |
         pytest --verbose --junit-xml reports/unit_tests_results.xml
+      vault_enabled: false
+      tailscale_enabled: false
       enable_test_report: true
       test_report_name: "UT Report"
       test_report_path: reports/unit_tests_results.xml
       test_report_format: java-junit
     secrets: inherit
-
-
+      
+  detroy:
+    if: always()
+    needs:
+      [
+        build,
+        unit-tests,
+        static-metrics,
+      ]
+    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v3
+    with:
+      image_name: magicparse
+      image_version: ${{ needs.build.outputs.image-version }}
+      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
+      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
+    secrets: inherit
