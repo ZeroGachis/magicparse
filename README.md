@@ -106,7 +106,7 @@ rows, errors= magicparse.parse(data="...", schema=schema)
 from uuid import UUID
 import magicparse
 
-class GuidConverter(magicparse.Converter):
+class GuidConverter(magicparse.TypeConverter):
     @staticmethod
     def key() -> str:
         return "guid"
