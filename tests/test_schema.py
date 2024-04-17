@@ -1,4 +1,5 @@
 from decimal import Decimal
+
 from magicparse import Schema
 from magicparse.schema import ColumnarSchema, CsvSchema
 from magicparse.fields import ColumnarField, CsvField
@@ -287,3 +288,29 @@ class TestRegister(TestCase):
             }
         )
         assert isinstance(schema, self.PipedSchema)
+
+
+class TestSteamParse(TestCase):
+    def test_stream_parse_errors_do_not_halt_parsing(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        rows = list(schema.stream_parse(b"1\na\n2"))
+        assert rows == [
+            ({"age": 1}, []),
+            (
+                {},
+                [
+                    {
+                        "row-number": 2,
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            ),
+            ({"age": 2}, []),
+        ]

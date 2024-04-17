@@ -45,6 +45,20 @@ class Schema(ABC):
         cls.registry[schema.key()] = schema
 
     def parse(self, data: Union[bytes, BytesIO]) -> Tuple[List[dict], List[dict]]:
+        items = []
+        errors = []
+
+        for item, row_errors in self.stream_parse(data):
+            if row_errors:
+                errors.extend(row_errors)
+            else:
+                items.append(item)
+
+        return items, errors
+
+    def stream_parse(
+        self, data: Union[bytes, BytesIO]
+    ) -> Iterable[Tuple[dict, list[dict]]]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -57,18 +71,15 @@ class Schema(ABC):
             next(reader)
             row_number += 1
 
-        result = []
-        errors = []
         for row in reader:
+            errors = []
             row_number += 1
-            row_is_valid = True
             item = {}
             for field in self.fields:
                 try:
                     value = field.read_value(row)
                 except Exception as exc:
                     errors.append({"row-number": row_number, **field.error(exc)})
-                    row_is_valid = False
                     continue
 
                 item[field.key] = value
@@ -80,15 +91,11 @@ class Schema(ABC):
                     errors.append(
                         {"row-number": row_number, **computed_field.error(exc)}
                     )
-                    row_is_valid = False
                     continue
 
                 item[computed_field.key] = value
 
-            if row_is_valid:
-                result.append(item)
-
-        return result, errors
+            yield item, errors
 
 
 class CsvSchema(Schema):
