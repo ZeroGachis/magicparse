@@ -72,30 +72,31 @@ class Schema(ABC):
             row_number += 1
 
         for row in reader:
-            errors = []
             row_number += 1
-            item = {}
-            for field in self.fields:
-                try:
-                    value = field.read_value(row)
-                except Exception as exc:
-                    errors.append({"row-number": row_number, **field.error(exc)})
-                    continue
+            if any(row):
+                errors = []
+                item = {}
+                for field in self.fields:
+                    try:
+                        value = field.read_value(row)
+                    except Exception as exc:
+                        errors.append({"row-number": row_number, **field.error(exc)})
+                        continue
 
-                item[field.key] = value
+                    item[field.key] = value
 
-            for computed_field in self.computed_fields:
-                try:
-                    value = computed_field.read_value(item)
-                except Exception as exc:
-                    errors.append(
-                        {"row-number": row_number, **computed_field.error(exc)}
-                    )
-                    continue
+                for computed_field in self.computed_fields:
+                    try:
+                        value = computed_field.read_value(item)
+                    except Exception as exc:
+                        errors.append(
+                            {"row-number": row_number, **computed_field.error(exc)}
+                        )
+                        continue
 
-                item[computed_field.key] = value
+                    item[computed_field.key] = value
 
-            yield item, errors
+                yield item, errors
 
 
 class CsvSchema(Schema):
@@ -124,8 +125,13 @@ class CsvSchema(Schema):
 
 class ColumnarSchema(Schema):
     def get_reader(self, stream: BytesIO) -> Iterable[str]:
-        stream_reader = codecs.getreader(self.encoding)
-        return stream_reader(stream)
+        stream_reader_factory = codecs.getreader(self.encoding)
+        stream_reader = stream_reader_factory(stream)
+        while True:
+            line = stream_reader.readline(None, False)
+            if not line:
+                break
+            yield line
 
     @staticmethod
     def key() -> str:
