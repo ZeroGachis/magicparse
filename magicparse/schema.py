@@ -73,30 +73,32 @@ class Schema(ABC):
 
         for row in reader:
             row_number += 1
-            if any(row):
-                errors = []
-                item = {}
-                for field in self.fields:
-                    try:
-                        value = field.read_value(row)
-                    except Exception as exc:
-                        errors.append({"row-number": row_number, **field.error(exc)})
-                        continue
+            if not any(row):
+                continue
 
-                    item[field.key] = value
+            errors = []
+            item = {}
+            for field in self.fields:
+                try:
+                    value = field.read_value(row)
+                except Exception as exc:
+                    errors.append({"row-number": row_number, **field.error(exc)})
+                    continue
 
-                for computed_field in self.computed_fields:
-                    try:
-                        value = computed_field.read_value(item)
-                    except Exception as exc:
-                        errors.append(
-                            {"row-number": row_number, **computed_field.error(exc)}
-                        )
-                        continue
+                item[field.key] = value
 
-                    item[computed_field.key] = value
+            for computed_field in self.computed_fields:
+                try:
+                    value = computed_field.read_value(item)
+                except Exception as exc:
+                    errors.append(
+                        {"row-number": row_number, **computed_field.error(exc)}
+                    )
+                    continue
 
-                yield item, errors
+                item[computed_field.key] = value
+
+            yield item, errors
 
 
 class CsvSchema(Schema):
