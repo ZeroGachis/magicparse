@@ -72,8 +72,11 @@ class Schema(ABC):
             row_number += 1
 
         for row in reader:
-            errors = []
             row_number += 1
+            if not any(row):
+                continue
+
+            errors = []
             item = {}
             for field in self.fields:
                 try:
@@ -124,8 +127,13 @@ class CsvSchema(Schema):
 
 class ColumnarSchema(Schema):
     def get_reader(self, stream: BytesIO) -> Iterable[str]:
-        stream_reader = codecs.getreader(self.encoding)
-        return stream_reader(stream)
+        stream_reader_factory = codecs.getreader(self.encoding)
+        stream_reader = stream_reader_factory(stream)
+        while True:
+            line = stream_reader.readline(None, False)
+            if not line:
+                break
+            yield line
 
     @staticmethod
     def key() -> str:

@@ -130,6 +130,21 @@ class TestCsvParse(TestCase):
             }
         ]
 
+    def test_parse_should_skip_empty_lines(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [{"key": "name", "type": "str", "column-number": 1}],
+            }
+        )
+        rows, errors = schema.parse(
+            b"""1
+
+"""
+        )
+        assert rows == [{"name": "1"}]
+        assert not errors
+
 
 class TestColumnarParse(TestCase):
     def test_with_no_data(self):
@@ -215,6 +230,28 @@ class TestColumnarParse(TestCase):
                 "error": "value 'a' is not a valid integer",
             }
         ]
+
+    def test_parse_should_skip_empty_lines(self):
+        schema = Schema.build(
+            {
+                "file_type": "columnar",
+                "fields": [
+                    {
+                        "key": "name",
+                        "type": "str",
+                        "column-start": 0,
+                        "column-length": 8,
+                    }
+                ],
+            }
+        )
+        rows, errors = schema.parse(
+            b"""8013109C
+
+"""
+        )
+        assert rows == [{"name": "8013109C"}]
+        assert not errors
 
 
 class TestQuotingSetting(TestCase):
