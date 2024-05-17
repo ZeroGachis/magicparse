@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from magicparse import Schema
-from magicparse.schema import ColumnarSchema, CsvSchema
+from magicparse.schema import ColumnarSchema, CsvSchema, ParsedRow
 from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
@@ -337,10 +337,11 @@ class TestSteamParse(TestCase):
         )
         rows = list(schema.stream_parse(b"1\na\n2"))
         assert rows == [
-            ({"age": 1}, []),
-            (
-                {},
-                [
+            ParsedRow(row_number=1, values={"age": 1}, errors=[]),
+            ParsedRow(
+                row_number=2,
+                values={},
+                errors=[
                     {
                         "row-number": 2,
                         "column-number": 1,
@@ -349,5 +350,29 @@ class TestSteamParse(TestCase):
                     }
                 ],
             ),
-            ({"age": 2}, []),
+            ParsedRow(row_number=3, values={"age": 2}, errors=[]),
         ]
+
+    def test_stream_parse_with_header_first_row_number_is_2(self):
+        schema = Schema.build(
+            {
+                "has_header": True,
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        rows = list(schema.stream_parse(b"My age\n1"))
+        assert len(rows) == 1
+        assert rows[0].row_number == 2
+
+    def test_stream_parse_without_header_first_row_number_is_1(self):
+        schema = Schema.build(
+            {
+                "has_header": False,
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert len(rows) == 1
+        assert rows[0].row_number == 1

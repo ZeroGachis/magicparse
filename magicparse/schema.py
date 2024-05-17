@@ -1,9 +1,17 @@
 import codecs
 from abc import ABC, abstractmethod
 import csv
+from dataclasses import dataclass
 from .fields import Field, ComputedField
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
+
+
+@dataclass(frozen=True, slots=True)
+class ParsedRow:
+    row_number: int
+    values: dict
+    errors: list[dict]
 
 
 class Schema(ABC):
@@ -48,17 +56,15 @@ class Schema(ABC):
         items = []
         errors = []
 
-        for item, row_errors in self.stream_parse(data):
-            if row_errors:
-                errors.extend(row_errors)
+        for parsed_row in self.stream_parse(data):
+            if parsed_row.errors:
+                errors.extend(parsed_row.errors)
             else:
-                items.append(item)
+                items.append(parsed_row.values)
 
         return items, errors
 
-    def stream_parse(
-        self, data: Union[bytes, BytesIO]
-    ) -> Iterable[Tuple[dict, list[dict]]]:
+    def stream_parse(self, data: Union[bytes, BytesIO]) -> Iterable[ParsedRow]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -98,7 +104,7 @@ class Schema(ABC):
 
                 item[computed_field.key] = value
 
-            yield item, errors
+            yield ParsedRow(row_number, item, errors)
 
 
 class CsvSchema(Schema):
