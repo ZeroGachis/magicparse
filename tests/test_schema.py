@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from magicparse import Schema
-from magicparse.schema import ColumnarSchema, CsvSchema
+from magicparse.schema import ColumnarSchema, CsvSchema, ParsedRow
 from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
@@ -336,25 +336,22 @@ class TestSteamParse(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1\na\n2"))
-        assert len(rows) == 3
-        assert rows[0].row_number == 1
-        assert rows[0].values == {"age": 1}
-        assert rows[0].errors == []
-
-        assert rows[1].row_number == 2
-        assert rows[1].values == {}
-        assert rows[1].errors == [
-            {
-                "row-number": 2,
-                "column-number": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }
+        assert rows == [
+            ParsedRow(row_number=1, values={"age": 1}, errors=[]),
+            ParsedRow(
+                row_number=2,
+                values={},
+                errors=[
+                    {
+                        "row-number": 2,
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            ),
+            ParsedRow(row_number=3, values={"age": 2}, errors=[]),
         ]
-
-        assert rows[2].row_number == 3
-        assert rows[2].values == {"age": 2}
-        assert rows[2].errors == []
 
     def test_stream_parse_with_header_first_row_number_is_2(self):
         schema = Schema.build(

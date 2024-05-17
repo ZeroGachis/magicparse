@@ -20,6 +20,7 @@ __all__ = [
     "PostProcessor",
     "PreProcessor",
     "Schema",
+    "ParsedRow",
     "Validator",
 ]
 
