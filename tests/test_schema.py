@@ -336,18 +336,46 @@ class TestSteamParse(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1\na\n2"))
-        assert rows == [
-            ({"age": 1}, []),
-            (
-                {},
-                [
-                    {
-                        "row-number": 2,
-                        "column-number": 1,
-                        "field-key": "age",
-                        "error": "value 'a' is not a valid integer",
-                    }
-                ],
-            ),
-            ({"age": 2}, []),
+        assert len(rows) == 3
+        assert rows[0].row_number == 1
+        assert rows[0].values == {"age": 1}
+        assert rows[0].errors == []
+
+        assert rows[1].row_number == 2
+        assert rows[1].values == {}
+        assert rows[1].errors == [
+            {
+                "row-number": 2,
+                "column-number": 1,
+                "field-key": "age",
+                "error": "value 'a' is not a valid integer",
+            }
         ]
+
+        assert rows[2].row_number == 3
+        assert rows[2].values == {"age": 2}
+        assert rows[2].errors == []
+
+    def test_stream_parse_with_header_first_row_number_is_2(self):
+        schema = Schema.build(
+            {
+                "has_header": True,
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        rows = list(schema.stream_parse(b"My age\n1"))
+        assert len(rows) == 1
+        assert rows[0].row_number == 2
+
+    def test_stream_parse_without_header_first_row_number_is_1(self):
+        schema = Schema.build(
+            {
+                "has_header": False,
+                "file_type": "csv",
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert len(rows) == 1
+        assert rows[0].row_number == 1

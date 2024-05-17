@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from .schema import Schema, builtins as builtins_schemas
+from .schema import ParsedRow, Schema, builtins as builtins_schemas
 from .post_processors import PostProcessor, builtins as builtins_post_processors
 from .pre_processors import PreProcessor, builtins as builtins_pre_processors
 from .builders import (
@@ -9,13 +9,14 @@ from .builders import (
 )
 from .transform import Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Tuple, Union
 from .validators import Validator, builtins as builtins_validators
 
 
 __all__ = [
     "TypeConverter",
     "parse",
+    "stream_parse",
     "PostProcessor",
     "PreProcessor",
     "Schema",
@@ -28,6 +29,13 @@ def parse(
 ) -> Tuple[List[dict], List[dict]]:
     schema_definition = Schema.build(schema_options)
     return schema_definition.parse(data)
+
+
+def stream_parse(
+    data: Union[bytes, BytesIO], schema_options: Dict[str, Any]
+) -> Iterable[ParsedRow]:
+    schema_definition = Schema.build(schema_options)
+    return schema_definition.stream_parse(data)
 
 
 Registrable = Union[Schema, Transform]
