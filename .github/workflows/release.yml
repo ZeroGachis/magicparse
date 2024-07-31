@@ -7,7 +7,7 @@ on:
       - '*'
 jobs:
   build:
-    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v4
     with:
       image_name: magicparse
       dockerfile_context: .
@@ -21,7 +21,7 @@ jobs:
       [
         build, 
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v4
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /home/src/magicparse
@@ -38,7 +38,7 @@ jobs:
       [
         build, 
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v4
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /home/src/magicparse
@@ -60,7 +60,7 @@ jobs:
         unit-tests,
         static-metrics,
       ]
-    uses: ZeroGachis/.github/.github/workflows/python-publish.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/python-publish.yml@v4
     with:
       python_version: "3.10"
       environment_name: main
@@ -72,7 +72,7 @@ jobs:
       unit-tests,
       publish,
     ]
-    uses: ZeroGachis/.github/.github/workflows/gh-release-notes.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/gh-release-notes.yml@v4
         
   detroy:
     if: always()
@@ -84,7 +84,7 @@ jobs:
         publish,
         github-release,
       ]
-    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v3
+    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v4
     with:
       image_name: magicparse
       image_version: ${{ needs.build.outputs.image-version }}
