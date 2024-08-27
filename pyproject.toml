@@ -6,6 +6,7 @@ authors = ["Smartway <dev@zero-gachis.com>"]
 readme = "README.md"
 repository = "https://github.com/ZeroGachis/magicparse"
 
+
 [tool.poetry.dependencies]
 python = "^3.9"
 
@@ -17,14 +18,8 @@ awscli = "~1"
 flake8-pyproject = "~1.2.3"
 
 [build-system]
-requires = ["poetry-core>=1.2.0", "poetry-dynamic-versioning>=1.0.0,<2.0.0"]
-build-backend = "poetry_dynamic_versioning.backend"
-
-[tool.poetry-dynamic-versioning]
-enable = true
-vcs = "git"
-style = "pep440"
-pattern  = "^(?P<base>\\d+\\.\\d+\\.\\d+)(-?((?P<stage>[a-zA-Z]+)\\.?(?P<revision>\\d+)?))?"
+requires = ["poetry-core>=1.2.0"]
+build-backend = "poetry.masonry.api"
 
 [tool.flake8]
 max-line-length = 88
