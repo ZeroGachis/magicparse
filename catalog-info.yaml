@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: magicparse
+  description: Declarative parser
+  annotations:
+    github.com/project-slug: ZeroGachis/magicparse
+  tags:
+   - python
+   - python-3-11
+   - backend
+spec:
+  type: library
+  lifecycle: production
+  system: FWMS
+  owner: FWMS_Squad
