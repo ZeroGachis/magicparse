@@ -1,14 +1,11 @@
 version: '3.0'
 
 services:
-
   magicparse:
     build:
       context: .
-      args:
-        - USERNAME=magicparse
     tty: true
-    working_dir: /home/src/magicparse
+    working_dir: /app
     volumes:
-      - .:/home/src/magicparse
-      - /home/src/magicparse/.venv/
+      - .:/app
+      - /app/.venv/

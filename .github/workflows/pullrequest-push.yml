@@ -26,12 +26,13 @@ jobs:
     uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v4
     with:
       image_url: ${{ needs.build.outputs.image-url }}
-      workdir: /home/src/magicparse
+      workdir: /app
       vault_enabled: false
       tailscale_enabled: false
       run_command: |
-        black magicparse/ --check --diff
-        flake8
+        poetry install --no-interaction --no-ansi --no-root --only dev
+        poetry run black magicparse/ --check --diff
+        poetry run flake8
     secrets: inherit
 
   unit-tests:
@@ -42,9 +43,10 @@ jobs:
     uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v4
     with:
       image_url: ${{ needs.build.outputs.image-url }}
-      workdir: /home/src/magicparse
+      workdir: /app
       run_command: |
-        pytest --verbose --junit-xml reports/unit_tests_results.xml
+        poetry install --no-interaction --no-ansi --no-root --only dev
+        poetry run pytest --verbose --junit-xml reports/unit_tests_results.xml
       vault_enabled: false
       tailscale_enabled: false
       enable_test_report: true
