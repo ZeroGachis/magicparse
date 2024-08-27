@@ -16,6 +16,6 @@ jobs:
     if: ${{ needs.github-release.outputs.release_created == 'true' }}
     uses: ZeroGachis/.github/.github/workflows/python-publish.yml@v4
     with:
-      python_version: "3.10"
+      python_version: "3.11"
       environment_name: main
       
