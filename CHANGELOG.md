@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.1](https://github.com/ZeroGachis/magicparse/compare/0.15.0...0.15.1) (2025-02-18)
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency black to v25 ([7856cb1](https://github.com/ZeroGachis/magicparse/commit/7856cb14d8cfb8a71c32aebbafebc7bb02ff8d94))
+
 ## [0.15.0](https://github.com/ZeroGachis/magicparse/compare/0.14.0...0.15.0) (2024-08-27)
 
 
