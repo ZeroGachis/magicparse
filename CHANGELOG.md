@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.16.0](https://github.com/ZeroGachis/magicparse/compare/0.15.0...0.16.0) (2025-06-25)
+
+
+### Features
+
+* add security scan workflow ([92a58c9](https://github.com/ZeroGachis/magicparse/commit/92a58c9705c9aa0b8cc6364c0537eabe7ea8ac85))
+
+
+### Miscellaneous Chores
+
+* **deps:** update dependency black to v25 ([f81c8f9](https://github.com/ZeroGachis/magicparse/commit/f81c8f9de0d2f8a6784c6ff5aaa4069e67ce0f49))
+* **deps:** update dependency black to v25 ([7856cb1](https://github.com/ZeroGachis/magicparse/commit/7856cb14d8cfb8a71c32aebbafebc7bb02ff8d94))
+
 ## [0.15.0](https://github.com/ZeroGachis/magicparse/compare/0.14.0...0.15.0) (2024-08-27)
 
 
