@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.16.1](https://github.com/ZeroGachis/magicparse/compare/0.16.0...0.16.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* Do not alter dict given in args ([6b15f81](https://github.com/ZeroGachis/magicparse/commit/6b15f811c49aa73cf91cda5f9d1fb8456d112cf9))
+
 ## [0.16.0](https://github.com/ZeroGachis/magicparse/compare/0.15.0...0.16.0) (2025-09-15)
 
 
