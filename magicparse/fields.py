@@ -117,3 +117,11 @@ class ComputedField(Field):
             "field-key": self.key,
             "error": exception.args[0],
         }
+
+    @classmethod
+    def build(cls, options: dict) -> "ComputedField":
+        key = options.pop("key", None)
+        if not key:
+            raise ValueError("key is required in computed field definition")
+
+        return ComputedField(key, options)
