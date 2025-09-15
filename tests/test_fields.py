@@ -143,3 +143,9 @@ def test_field_without_position_or_column_definition():
         ValueError, match="missing field position for field: 'field_key'"
     ):
         Field.build({"key": "field_key", "type": "decimal"})
+
+
+def test_build_should_not_alter_given_options():
+    options = {"key": "field_key", "type": "decimal", "column-number": 1}
+    Field.build(options)
+    assert options == {"key": "field_key", "type": "decimal", "column-number": 1}

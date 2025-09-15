@@ -53,6 +53,7 @@ class Field(ABC):
 
     @classmethod
     def build(cls, options: dict) -> "Field":
+        options = options.copy()
         key = options.pop("key", None)
         if not key:
             raise ValueError("key is required in field definition")
