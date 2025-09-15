@@ -376,3 +376,38 @@ class TestSteamParse(TestCase):
         rows = list(schema.stream_parse(b"1"))
         assert len(rows) == 1
         assert rows[0].row_number == 1
+
+
+class TestComputedFields(TestCase):
+    def test_concat(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "delimiter": ";",
+                "fields": [
+                    {"key": "field_1", "type": "str", "column-number": 1},
+                    {"key": "field_2", "type": "str", "column-number": 2},
+                ],
+                "computed-fields": [
+                    {
+                        "key": "computed_field",
+                        "type": "str",
+                        "builder": {
+                            "name": "concat",
+                            "parameters": {
+                                "fields": ["field_1", "field_2"],
+                            },
+                        },
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"A;B"))
+        print(rows)
+        assert len(rows) == 1
+        assert rows[0].row_number == 1
+        assert rows[0].values == {
+            "field_1": "A",
+            "field_2": "B",
+            "computed_field": "AB",
+        }
