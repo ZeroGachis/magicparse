@@ -1,7 +1,7 @@
 {
-    "python.testing.pytestArgs": [
-        "tests"
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+    "python.testing.pytestEnabled": true,
+    "python.experiments.optInto": [
+        "pythonTestAdapter"
     ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
 }
