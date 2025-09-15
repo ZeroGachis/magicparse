@@ -6,10 +6,21 @@ on:
   push:
     branches:
       - "main"
+    paths-ignore:
+      - 'README.md'
+      - 'catalog-info.yaml'
 
 jobs:
   build:
     uses: ZeroGachis/.github/.github/workflows/build-image.yml@v4
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+      id-token: write
+      packages: write
+      pull-requests: write
+      checks: write
     with:
       image_name: magicparse
       dockerfile_context: .
@@ -19,11 +30,17 @@ jobs:
     secrets: inherit
 
   static-metrics:
-    needs: 
+    needs:
       [
-        build, 
+        build,
       ]
     uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v4
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+      actions: write
+      checks: write
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /app
@@ -36,11 +53,17 @@ jobs:
     secrets: inherit
 
   unit-tests:
-    needs: 
+    needs:
       [
-        build, 
+        build,
       ]
     uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v4
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+      actions: write
+      checks: write
     with:
       image_url: ${{ needs.build.outputs.image-url }}
       workdir: /app
@@ -54,8 +77,8 @@ jobs:
       test_report_path: reports/unit_tests_results.xml
       test_report_format: java-junit
     secrets: inherit
-      
-  detroy:
+
+  destroy:
     if: always()
     needs:
       [
@@ -64,6 +87,10 @@ jobs:
         static-metrics,
       ]
     uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v4
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
     with:
       image_name: magicparse
       image_version: ${{ needs.build.outputs.image-version }}
