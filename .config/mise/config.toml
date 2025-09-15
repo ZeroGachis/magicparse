@@ -1,0 +1,20 @@
+[settings]
+# Mise should ignore "idiomatic version files"
+# and consider this toml file as the only source of truth
+# Cf: https://mise.jdx.dev/configuration.html#idiomatic-version-files
+legacy_version_file = false
+python.compile = true
+
+[tools]
+python = "3.12"
+poetry = "1.8"
+
+[env]
+_.file = '.env'
+_.python.venv = { path = ".venv", create = false }
+
+
+[tasks.test]
+description = "🐍 Run tests"
+depends = ["start_db"]
+run = "pytest -s"
