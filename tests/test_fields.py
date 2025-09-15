@@ -18,8 +18,8 @@ class DummyField(Field):
 
 def test_chain_transformations():
     field = DummyField(
+        "name",
         {
-            "key": "name",
             "type": "str",
             "pre-processors": [{"name": "strip-whitespaces"}],
             "validators": [
@@ -40,8 +40,8 @@ def test_chain_transformations_with_post_processors():
     # NB: Currently their is no valid combination that includes all
     # the 4 transformations at once.
     field = DummyField(
+        "ratio",
         {
-            "key": "ratio",
             "type": "decimal",
             "pre-processors": [
                 {
@@ -60,7 +60,7 @@ def test_chain_transformations_with_post_processors():
 
 
 def test_csv_error_format():
-    field = CsvField({"key": "ratio", "type": "decimal", "column-number": 1})
+    field = CsvField("ratio", {"type": "decimal", "column-number": 1})
 
     with pytest.raises(ValueError) as error:
         field.read_value("hello")
@@ -74,7 +74,7 @@ def test_csv_error_format():
 
 def test_columnar_error_format():
     field = ColumnarField(
-        {"key": "ratio", "type": "decimal", "column-start": 0, "column-length": 5}
+        "ratio", {"type": "decimal", "column-start": 0, "column-length": 5}
     )
 
     with pytest.raises(ValueError) as error:
@@ -90,8 +90,8 @@ def test_columnar_error_format():
 
 def test_optional_field():
     field = DummyField(
+        "ratio",
         {
-            "key": "ratio",
             "type": "decimal",
             "optional": True,
             "pre-processors": [
@@ -109,8 +109,8 @@ def test_optional_field():
 
 def test_required_field():
     field = DummyField(
+        "ratio",
         {
-            "key": "ratio",
             "type": "decimal",
             "optional": False,
         }
@@ -120,8 +120,8 @@ def test_required_field():
 
 def test_require_field_with_empty_value():
     field = DummyField(
+        "pepito",
         {
-            "key": "pepito",
             "type": "decimal",
         }
     )
@@ -129,3 +129,17 @@ def test_require_field_with_empty_value():
         ValueError, match="pepito field is required but the value was empty"
     ):
         field.read_value("")
+
+
+def test_field_without_key():
+    with pytest.raises(
+        ValueError, match="key is required in field definition"
+    ):
+        Field.build({"type": "decimal"})
+
+
+def test_field_without_position_or_column_definition():
+    with pytest.raises(
+        ValueError, match="missing field position for field: 'field_key'"
+    ):
+        Field.build({"key": "field_key", "type": "decimal"})
