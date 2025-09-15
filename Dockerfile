@@ -1,4 +1,4 @@
-FROM 007065811408.dkr.ecr.eu-west-3.amazonaws.com/python-3-11:1
+FROM 007065811408.dkr.ecr.eu-west-3.amazonaws.com/python-3-13-alpine:1
 
 WORKDIR /app
 
