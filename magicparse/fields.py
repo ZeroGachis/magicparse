@@ -9,8 +9,8 @@ from .validators import Validator
 
 
 class Field(ABC):
-    def __init__(self, options: dict) -> None:
-        self.key = options["key"]
+    def __init__(self, key: str, options: dict) -> None:
+        self.key = key
         pre_processors = [
             PreProcessor.build(item) for item in options.get("pre-processors", [])
         ]
@@ -53,21 +53,25 @@ class Field(ABC):
 
     @classmethod
     def build(cls, options: dict) -> "Field":
+        key = options.pop("key", None)
+        if not key:
+            raise ValueError("key is required in field definition")
+
         column_number = options.get("column-number")
         if column_number:
-            return CsvField(options)
+            return CsvField(key, options)
 
         column_start = options.get("column-start")
         column_length = options.get("column-length")
         if column_start is not None and column_length is not None:
-            return ColumnarField(options)
+            return ColumnarField(key, options)
 
-        raise ValueError("missing field position")
+        raise ValueError(f"missing field position for field: '{key}'")
 
 
 class CsvField(Field):
-    def __init__(self, options: dict) -> None:
-        super().__init__(options)
+    def __init__(self, key: str, options: dict) -> None:
+        super().__init__(key, options)
         self.column_number = options["column-number"]
 
     def _read_raw_value(self, row: List[str]) -> str:
@@ -82,8 +86,8 @@ class CsvField(Field):
 
 
 class ColumnarField(Field):
-    def __init__(self, options: dict) -> None:
-        super().__init__(options)
+    def __init__(self, key: str, options: dict) -> None:
+        super().__init__(key, options)
         self.column_start = options["column-start"]
         self.column_length = options["column-length"]
         self.column_end = self.column_start + self.column_length
@@ -101,8 +105,8 @@ class ColumnarField(Field):
 
 
 class ComputedField(Field):
-    def __init__(self, options: dict) -> None:
-        super().__init__(options)
+    def __init__(self, key: str, options: dict) -> None:
+        super().__init__(key, options)
         self.builder = Builder.build(options["builder"])
 
     def _read_raw_value(self, row) -> str:
