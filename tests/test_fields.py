@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from magicparse.parsed_field import LastTransformSuccess
 from magicparse.type_converters import DecimalConverter, StrConverter
 from magicparse.fields import ColumnarField, CsvField, Field
 from magicparse.post_processors import Divide
@@ -32,8 +33,8 @@ def test_chain_transformations():
     assert isinstance(field.transforms[1], StrConverter)
     assert isinstance(field.transforms[2], RegexMatches)
 
-    result = field.read_value("   mac adam    ")
-    assert result == "mac adam"
+    result = field.parse("   mac adam    ")
+    assert result == LastTransformSuccess(value="mac adam")
 
 
 def test_chain_transformations_with_post_processors():
@@ -56,14 +57,14 @@ def test_chain_transformations_with_post_processors():
     assert isinstance(field.transforms[0], Replace)
     assert isinstance(field.transforms[1], DecimalConverter)
     assert isinstance(field.transforms[2], Divide)
-    assert field.read_value("XXX150") == Decimal("1.50")
+    assert field.parse("XXX150") == LastTransformSuccess(value=Decimal("1.50"))
 
 
 def test_csv_error_format():
     field = CsvField("ratio", {"type": "decimal", "column-number": 1})
 
     with pytest.raises(ValueError) as error:
-        field.read_value("hello")
+        field.parse("hello")
 
     assert field.error(error.value) == {
         "column-number": 1,
@@ -78,7 +79,7 @@ def test_columnar_error_format():
     )
 
     with pytest.raises(ValueError) as error:
-        field.read_value("hello")
+        field.parse("hello")
 
     assert field.error(error.value) == {
         "column-start": 0,
@@ -103,8 +104,8 @@ def test_optional_field():
             "post-processors": [{"name": "divide", "parameters": {"denominator": 100}}],
         }
     )
-    assert field.read_value("XXX150") == Decimal("1.50")
-    assert field.read_value("") is None
+    assert field.parse("XXX150") == LastTransformSuccess(value=Decimal("1.50"))
+    assert field.parse("") == LastTransformSuccess(value=None)
 
 
 def test_required_field():
@@ -115,7 +116,7 @@ def test_required_field():
             "optional": False,
         }
     )
-    assert field.read_value("1.5") == Decimal("1.50")
+    assert field.parse("1.5") == LastTransformSuccess(value=Decimal("1.50"))
 
 
 def test_require_field_with_empty_value():
@@ -128,7 +129,7 @@ def test_require_field_with_empty_value():
     with pytest.raises(
         ValueError, match="pepito field is required but the value was empty"
     ):
-        field.read_value("")
+        field.parse("")
 
 
 def test_field_without_key():

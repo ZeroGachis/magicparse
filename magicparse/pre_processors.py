@@ -15,17 +15,19 @@ class PreProcessor(Transform):
         except:
             raise ValueError(f"invalid pre-processor '{name}'")
 
+        on_error = options.get("on-error", "raise")
         if "parameters" in options:
-            return pre_processor(**options["parameters"])
+            return pre_processor(on_error=on_error, **options["parameters"])
         else:
-            return pre_processor()
+            return pre_processor(on_error=on_error)
 
 
 class LeftPadZeroes(PreProcessor):
-    def __init__(self, width: int) -> None:
+    def __init__(self, on_error: str, width: int) -> None:
+        super().__init__(on_error)
         self.width = width
 
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         return value.zfill(self.width)
 
     @staticmethod
@@ -34,11 +36,12 @@ class LeftPadZeroes(PreProcessor):
 
 
 class Map(PreProcessor):
-    def __init__(self, values: dict) -> None:
+    def __init__(self, on_error: str, values: dict) -> None:
+        super().__init__(on_error)
         self.values = values
         self._keys = ", ".join(f"'{key}'" for key in self.values.keys())
 
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         try:
             return self.values[value]
         except:
@@ -52,11 +55,12 @@ class Map(PreProcessor):
 
 
 class Replace(PreProcessor):
-    def __init__(self, pattern: str, replacement: str) -> None:
+    def __init__(self, on_error: str, pattern: str, replacement: str) -> None:
+        super().__init__(on_error)
         self.pattern = pattern
         self.replacement = replacement
 
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         return value.replace(self.pattern, self.replacement)
 
     @staticmethod
@@ -65,7 +69,7 @@ class Replace(PreProcessor):
 
 
 class StripWhitespaces(PreProcessor):
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         return value.strip()
 
     @staticmethod
@@ -74,10 +78,11 @@ class StripWhitespaces(PreProcessor):
 
 
 class LeftStrip(PreProcessor):
-    def __init__(self, characters: str) -> None:
+    def __init__(self, on_error: str, characters: str) -> None:
+        super().__init__(on_error)
         self.characters = characters
 
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         return value.lstrip(self.characters)
 
     @staticmethod
@@ -86,7 +91,8 @@ class LeftStrip(PreProcessor):
 
 
 class RegexExtract(PreProcessor):
-    def __init__(self, pattern: str) -> None:
+    def __init__(self, on_error: str, pattern: str) -> None:
+        super().__init__(on_error)
         pattern = re.compile(pattern)
         if "value" not in pattern.groupindex:
             raise ValueError(
@@ -95,7 +101,7 @@ class RegexExtract(PreProcessor):
 
         self.pattern = pattern
 
-    def apply(self, value: str) -> str:
+    def transform(self, value: str) -> str:
         match = re.match(self.pattern, value)
         if not match:
             raise ValueError(

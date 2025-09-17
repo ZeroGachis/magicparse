@@ -2,9 +2,14 @@ import codecs
 from abc import ABC, abstractmethod
 import csv
 from dataclasses import dataclass
-from .fields import Field, ComputedField
+from .fields import Field, ComputedField, LastTransformFailed
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
+
+
+@dataclass(frozen=True, slots=True)
+class SkippedRow:
+    pass
 
 
 @dataclass(frozen=True, slots=True)
@@ -82,29 +87,40 @@ class Schema(ABC):
             if not any(row):
                 continue
 
-            errors = []
-            item = {}
-            for field in self.fields:
-                try:
-                    value = field.read_value(row)
-                except Exception as exc:
-                    errors.append({"row-number": row_number, **field.error(exc)})
-                    continue
+            parsed_fields = self.process_fields(self.fields, row, row_number)
+            if isinstance(parsed_fields, SkippedRow):
+                continue
 
-                item[field.key] = value
+            computed_fields = self.process_fields(
+                self.computed_fields, parsed_fields.values, row_number
+            )
+            if isinstance(computed_fields, SkippedRow):
+                continue
 
-            for computed_field in self.computed_fields:
-                try:
-                    value = computed_field.read_value(item)
-                except Exception as exc:
-                    errors.append(
-                        {"row-number": row_number, **computed_field.error(exc)}
-                    )
-                    continue
+            yield ParsedRow(
+                row_number,
+                {**parsed_fields.values, **computed_fields.values},
+                parsed_fields.errors + computed_fields.errors,
+            )
 
-                item[computed_field.key] = value
+    def process_fields(
+        self, fields: List[Field], row: List[str], row_number: int
+    ) -> ParsedRow | SkippedRow:
+        item = {}
+        errors = []
+        for field in fields:
+            try:
+                parsed_value = field.parse(row)
 
-            yield ParsedRow(row_number, item, errors)
+            except Exception as exc:
+                errors.append({"row-number": row_number, **field.error(exc)})
+                continue
+
+            if isinstance(parsed_value, LastTransformFailed) and parsed_value.skip_row:
+                return SkippedRow()
+            item[field.key] = parsed_value.value
+
+        return ParsedRow(row_number, item, errors)
 
 
 class CsvSchema(Schema):

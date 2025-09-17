@@ -7,10 +7,11 @@ from .transform import Transform
 
 
 class TypeConverter(Transform):
-    def __init__(self, options: dict) -> None:
-        self.nullable = options.get("nullable", False)
-        
-    def apply(self, value: str) -> str:        
+    def __init__(self, nullable: bool, on_error: str) -> None:
+        super().__init__(on_error)
+        self.nullable = nullable
+
+    def transform(self, value: str | None) -> Any | None:
         if value is None and self.nullable:
             return None
 
@@ -23,15 +24,19 @@ class TypeConverter(Transform):
     @classmethod
     def build(cls, options) -> "TypeConverter":
         try:
-            _typeDefinition = options["type"]
-            if isinstance(_typeDefinition, str):
-                _typeDefinition = {"key": _typeDefinition}
-            key = _typeDefinition["key"]
+            type = options["type"]
+            if isinstance(type, str):
+                key = type
+                type = {}
+            else:
+                key = type.pop("key")
         except:
             raise ValueError("missing key 'type'")
 
+        nullable = type.pop("nullable", False)
+        on_error = type.pop("on-error", "raise")
         try:
-            return cls.registry[key](_typeDefinition)
+            return cls.registry[key](nullable, on_error, **type)
         except Exception as e:
             raise ValueError(f"invalid type '{key}': {e}")
 
