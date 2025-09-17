@@ -51,4 +51,15 @@ class GreaterThan(Validator):
         return "greater-than"
 
 
-builtins = [GreaterThan, RegexMatches]
+class NotNullOrEmpty(Validator):
+    def apply(self, value: str) -> str:
+        if not value:
+            raise ValueError("value must not be null or empty")
+        return value
+
+    @staticmethod
+    def key() -> str:
+        return "not-null-or-empty"
+
+
+builtins = [GreaterThan, RegexMatches, NotNullOrEmpty]

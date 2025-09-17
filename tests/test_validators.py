@@ -1,5 +1,5 @@
 from decimal import Decimal
-from magicparse.validators import GreaterThan, RegexMatches, Validator
+from magicparse.validators import GreaterThan, NotNullOrEmpty, RegexMatches, Validator
 import pytest
 import re
 from unittest import TestCase
@@ -16,6 +16,13 @@ class TestBuild(TestCase):
         assert isinstance(validator, RegexMatches)
         assert isinstance(validator.pattern, re.Pattern)
         assert validator.pattern.pattern == "^\\d{13}$"
+    
+    def test_not_null_or_empty(self):
+        validator = Validator.build(
+            { "name": "not-null-or-empty" }
+        )
+
+        assert isinstance(validator, NotNullOrEmpty)
 
     def test_unknown(self):
         with pytest.raises(ValueError, match="invalid validator 'anything'"):
@@ -111,3 +118,28 @@ class TestGreaterThanValidator(TestCase):
 
         with pytest.raises(ValueError, match="value must be greater than 10"):
             validator.apply(10)
+
+
+class TestNotNullOrEmptyValidator(TestCase):
+    def test_it_successfully_returns_the_value_when_the_value_is_not_null_or_empty(self):
+        validator = Validator.build(
+            {"name": "not-null-or-empty"}
+        )
+
+        assert validator.apply("hello") == "hello"
+
+    def test_it_raises_an_error_when_the_value_is_null(self):
+        validator = Validator.build(
+            {"name": "not-null-or-empty"}
+        )
+
+        with pytest.raises(ValueError, match="value must not be null or empty"):
+            validator.apply(None)
+
+    def test_it_raises_an_error_when_the_value_is_empty(self):
+        validator = Validator.build(
+            {"name": "not-null-or-empty"}
+        )
+
+        with pytest.raises(ValueError, match="value must not be null or empty"):
+            validator.apply("")
