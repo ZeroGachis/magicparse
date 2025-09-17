@@ -1,13 +1,53 @@
 from abc import ABC, abstractclassmethod, abstractmethod, abstractstaticmethod
+from dataclasses import dataclass
+from enum import Enum
+from typing import Any
+
+
+@dataclass(frozen=True, slots=True)
+class Ok:
+    value: Any
+
+
+@dataclass(frozen=True, slots=True)
+class SkipRow:
+    pass
+
+
+type Result = Ok | SkipRow
+
+
+
+class OnError(Enum):
+    RAISE = "raise"
+    SKIP_ROW = "skip-row"
 
 
 class Transform(ABC):
+    def __init__(self, on_error: OnError) -> None:
+        self.on_error = on_error
+
     @abstractclassmethod
     def build(cls, options: dict) -> "Transform":
         pass
 
+    def apply(
+        self, last_result: Result
+    ) -> Result:
+        if isinstance(last_result, SkipRow):
+            return last_result
+
+        try:
+            return Ok(
+                value=self.transform(last_result.value)
+            )
+        except Exception:
+            if self.on_error == OnError.SKIP_ROW.value:
+                return SkipRow()
+            raise
+
     @abstractmethod
-    def apply(self, value):
+    def transform(self, value: Any | None) -> Any | None:
         pass
 
     @abstractstaticmethod

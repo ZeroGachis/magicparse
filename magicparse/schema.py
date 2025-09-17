@@ -2,6 +2,8 @@ import codecs
 from abc import ABC, abstractmethod
 import csv
 from dataclasses import dataclass
+
+from magicparse.transform import SkipRow
 from .fields import Field, ComputedField
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
@@ -82,29 +84,41 @@ class Schema(ABC):
             if not any(row):
                 continue
 
-            errors = []
-            item = {}
-            for field in self.fields:
-                try:
-                    value = field.read_value(row)
-                except Exception as exc:
-                    errors.append({"row-number": row_number, **field.error(exc)})
-                    continue
+            parsed_fields = self.process_fields(self.fields, row, row_number)
+            if isinstance(parsed_fields, SkipRow):
+                continue
 
-                item[field.key] = value
+            computed_fields = self.process_fields(
+                self.computed_fields, parsed_fields.values, row_number
+            )
+            if isinstance(computed_fields, SkipRow):
+                continue
 
-            for computed_field in self.computed_fields:
-                try:
-                    value = computed_field.read_value(item)
-                except Exception as exc:
-                    errors.append(
-                        {"row-number": row_number, **computed_field.error(exc)}
-                    )
-                    continue
+            yield ParsedRow(
+                row_number,
+                {**parsed_fields.values, **computed_fields.values},
+                parsed_fields.errors + computed_fields.errors,
+            )
 
-                item[computed_field.key] = value
+    def process_fields(
+        self, fields: List[Field], row: List[str], row_number: int
+    ) -> ParsedRow | SkipRow:
+        item = {}
+        errors = []
+        for field in fields:
+            try:
+                parsed_value = field.parse(row)
 
-            yield ParsedRow(row_number, item, errors)
+            except Exception as exc:
+                errors.append({"row-number": row_number, **field.error(exc)})
+                continue
+
+            if isinstance(parsed_value, SkipRow):
+                return parsed_value
+
+            item[field.key] = parsed_value.value
+
+        return ParsedRow(row_number, item, errors)
 
 
 class CsvSchema(Schema):

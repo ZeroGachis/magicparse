@@ -3,6 +3,8 @@ import pytest
 from magicparse.fields import ComputedField
 from unittest import TestCase
 
+from magicparse.transform import Ok
+
 
 class TestBuild(TestCase):
     def test_without_builder(self):
@@ -30,9 +32,9 @@ class TestBuild(TestCase):
             }
         )
 
-        computed = field.read_value({"code_1": "01", "code_2": "02"})
+        computed = field.parse({"code_1": "01", "code_2": "02"})
 
-        assert computed == "0102"
+        assert computed == Ok(value="0102")
 
     def test_error_format(self):
         field = ComputedField(
@@ -48,6 +50,6 @@ class TestBuild(TestCase):
         )
 
         with pytest.raises(KeyError) as error:
-            field.read_value({})
+            field.parse({})
 
         assert field.error(error.value) == {"error": "code_1", "field-key": "output"}

@@ -1,4 +1,4 @@
-from .transform import Transform
+from .transform import Transform, OnError
 from decimal import Decimal
 from typing import TypeVar
 
@@ -16,16 +16,18 @@ class PostProcessor(Transform):
         except:
             raise ValueError(f"invalid post-processor '{name}'")
 
+        on_error = options.get("on-error", OnError.RAISE)
         if "parameters" in options:
-            return post_processor(**options["parameters"])
+            return post_processor(on_error=on_error, **options["parameters"])
         else:
-            return post_processor()
+            return post_processor(on_error=on_error)
 
 
 class Divide(PostProcessor):
     Number = TypeVar("Number", int, float, Decimal)
 
-    def __init__(self, denominator: int) -> None:
+    def __init__(self, on_error: OnError, denominator: int) -> None:
+        super().__init__(on_error)
         if denominator <= 0:
             raise ValueError(
                 "post-processor 'divide': "
@@ -34,7 +36,7 @@ class Divide(PostProcessor):
 
         self.denominator = denominator
 
-    def apply(self, value: Number) -> Number:
+    def transform(self, value: Number) -> Number:
         return value / self.denominator
 
     @staticmethod
@@ -45,7 +47,8 @@ class Divide(PostProcessor):
 class Round(PostProcessor):
     Number = TypeVar("Number", int, float, Decimal)
 
-    def __init__(self, precision: int) -> None:
+    def __init__(self, on_error: OnError, precision: int) -> None:
+        super().__init__(on_error)
         if precision < 0:
             raise ValueError(
                 "post-processor 'round': "
@@ -54,7 +57,7 @@ class Round(PostProcessor):
 
         self.precision = precision
 
-    def apply(self, value: Number) -> Number:
+    def transform(self, value: Number) -> Number:
         return round(value, self.precision)
 
     @staticmethod

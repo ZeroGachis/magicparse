@@ -6,6 +6,7 @@ from .type_converters import TypeConverter
 from .post_processors import PostProcessor
 from .pre_processors import PreProcessor
 from .validators import Validator
+from .transform import Ok, Result
 
 
 class Field(ABC):
@@ -26,15 +27,17 @@ class Field(ABC):
             pre_processors + [type_converter] + validators + post_processors
         )
 
-    def _process_raw_value(self, raw_value: str):
-        value = raw_value
+    def _process_raw_value(
+        self, raw_value: str
+    ) -> Result:
         if not raw_value:
             if self.optional:
-                return None
+                return Ok(value=None)
             else:
                 raise ValueError(
                     f"{self.key} field is required but the value was empty"
                 )
+        value = Ok(value=raw_value)
         for transform in self.transforms:
             value = transform.apply(value)
         return value
@@ -43,7 +46,7 @@ class Field(ABC):
     def _read_raw_value(self, row) -> str:
         pass
 
-    def read_value(self, row):
+    def parse(self, row) -> Result:
         raw_value = self._read_raw_value(row)
         return self._process_raw_value(raw_value)
 
@@ -111,7 +114,7 @@ class ComputedField(Field):
         self.builder = Builder.build(options["builder"])
 
     def _read_raw_value(self, row) -> str:
-        return self.builder.apply(row)
+        return self.builder.transform(row)
 
     def error(self, exception: Exception) -> dict:
         return {

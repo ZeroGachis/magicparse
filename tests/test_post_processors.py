@@ -34,19 +34,19 @@ class TestDivide(TestCase):
         post_processor = PostProcessor.build(
             {"name": "divide", "parameters": {"denominator": 100}}
         )
-        assert post_processor.apply(150) == 1.5
+        assert post_processor.transform(150) == 1.5
 
     def test_divide_float(self):
         post_processor = PostProcessor.build(
             {"name": "divide", "parameters": {"denominator": 100}}
         )
-        assert post_processor.apply(1.63) == 0.0163
+        assert post_processor.transform(1.63) == 0.0163
 
     def test_divide_decimal(self):
         post_processor = PostProcessor.build(
             {"name": "divide", "parameters": {"denominator": 100}}
         )
-        assert post_processor.apply(Decimal("1.63")) == Decimal("0.0163")
+        assert post_processor.transform(Decimal("1.63")) == Decimal("0.0163")
 
 
 class TestRound(TestCase):
@@ -62,7 +62,7 @@ class TestRound(TestCase):
         post_processor = PostProcessor.build(
             {"name": "round", "parameters": {"precision": 2}}
         )
-        assert post_processor.apply(3.14159265359) == 3.14
+        assert post_processor.transform(3.14159265359) == 3.14
 
 
 class TestRegister(TestCase):
@@ -71,7 +71,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "no-thanks"
 
-        def apply(self, value):
+        def transform(self, value):
             return f"{value} ? No thanks"
 
     def test_register(self):
