@@ -133,3 +133,20 @@ class TestRegister(TestCase):
 
         type_converter = TypeConverter.build({"type": "guid"})
         assert isinstance(type_converter, self.GuidConverter)
+
+class TestNullableField(TestCase):
+    def test_int(self):
+        type_converter = TypeConverter.build({"type": {"key": "int", "nullable": True}})
+        assert type_converter.apply(None) is None
+    
+    def test_decimal(self):
+        type_converter = TypeConverter.build({"type": {"key": "decimal", "nullable": True}})
+        assert type_converter.apply(None) is None
+    
+    def test_time(self):
+        type_converter = TypeConverter.build({"type": {"key": "time", "nullable": True}})
+        assert type_converter.apply(None) is None
+    
+    def test_datetime(self):
+        type_converter = TypeConverter.build({"type": {"key": "datetime", "nullable": True}})
+        assert type_converter.apply(None) is None
