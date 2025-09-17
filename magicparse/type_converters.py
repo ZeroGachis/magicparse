@@ -8,14 +8,17 @@ class TypeConverter(Transform):
     @classmethod
     def build(cls, options) -> "TypeConverter":
         try:
-            _type = options["type"]
+            _typeDefinition = options["type"]
+            if isinstance(_typeDefinition, str):
+                _typeDefinition = {"key": _typeDefinition}
+            key = _typeDefinition["key"]
         except:
             raise ValueError("missing key 'type'")
 
         try:
-            return cls.registry[_type]()
+            return cls.registry[key]()
         except:
-            raise ValueError(f"invalid type '{_type}'")
+            raise ValueError(f"invalid type '{key}'")
 
 
 class StrConverter(TypeConverter):

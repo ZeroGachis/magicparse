@@ -15,7 +15,7 @@ from magicparse.type_converters import (
 )
 
 
-class TestBuild(TestCase):
+class TestBuildFlattenType(TestCase):
     def test_str(self):
         type_converter = TypeConverter.build({"type": "str"})
         assert isinstance(type_converter, StrConverter)
@@ -44,6 +44,10 @@ class TestBuild(TestCase):
         with pytest.raises(ValueError, match="missing key 'type'"):
             TypeConverter.build({})
 
+class TestBuildComplexeType(TestCase):
+    def test_str(self):
+        type_converter = TypeConverter.build({"type": {"key": "str"}})
+        assert isinstance(type_converter, StrConverter)
 
 class TestStr(TestCase):
     def test_apply(self):
