@@ -1,10 +1,25 @@
+from abc import abstractmethod
 from datetime import datetime, time
 from decimal import Decimal
+from typing import Any
 
 from .transform import Transform
 
 
 class TypeConverter(Transform):
+    def __init__(self, options: dict) -> None:
+        self.nullable = options.get("nullable", False)
+        
+    def apply(self, value: str) -> str:        
+        if value is None and self.nullable:
+            return None
+
+        return self.convert(value)
+
+    @abstractmethod
+    def convert(self, value: str) -> Any:
+        pass
+
     @classmethod
     def build(cls, options) -> "TypeConverter":
         try:
@@ -16,13 +31,13 @@ class TypeConverter(Transform):
             raise ValueError("missing key 'type'")
 
         try:
-            return cls.registry[key]()
-        except:
-            raise ValueError(f"invalid type '{key}'")
+            return cls.registry[key](_typeDefinition)
+        except Exception as e:
+            raise ValueError(f"invalid type '{key}': {e}")
 
 
 class StrConverter(TypeConverter):
-    def apply(self, value: str) -> str:
+    def convert(self, value: str) -> str:
         return value
 
     @staticmethod
@@ -31,7 +46,7 @@ class StrConverter(TypeConverter):
 
 
 class IntConverter(TypeConverter):
-    def apply(self, value: str) -> int:
+    def convert(self, value: str) -> int:
         try:
             return int(value)
         except:
@@ -43,7 +58,7 @@ class IntConverter(TypeConverter):
 
 
 class DecimalConverter(TypeConverter):
-    def apply(self, value: str) -> Decimal:
+    def convert(self, value: str) -> Decimal:
         try:
             return Decimal(value)
         except:
@@ -55,7 +70,7 @@ class DecimalConverter(TypeConverter):
 
 
 class TimeConverter(TypeConverter):
-    def apply(self, value: str) -> time:
+    def convert(self, value: str) -> time:
         try:
             parsed = time.fromisoformat(value)
             if parsed.tzinfo is None:
@@ -70,7 +85,7 @@ class TimeConverter(TypeConverter):
 
 
 class DateTimeConverter(TypeConverter):
-    def apply(self, value: str) -> datetime:
+    def convert(self, value: str) -> datetime:
         try:
             parsed = datetime.fromisoformat(value)
             if parsed.tzinfo is None:
