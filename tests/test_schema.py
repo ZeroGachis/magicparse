@@ -1,6 +1,9 @@
 from decimal import Decimal
+from typing import Any
 
 from magicparse import Schema
+from magicparse.post_processors import PostProcessor
+from magicparse.pre_processors import PreProcessor
 from magicparse.schema import ColumnarSchema, CsvSchema, ParsedRow
 from magicparse.fields import ColumnarField, CsvField
 import pytest
@@ -411,3 +414,224 @@ class TestComputedFields(TestCase):
             "field_2": "B",
             "computed_field": "AB",
         }
+
+
+class TestHandleTypeError(TestCase):
+    def test_default_behavior_raise(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {"key": "age", "type": "int", "column-number": 1}
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"a"))
+        assert rows == [
+            ParsedRow(row_number=1, values={}, errors=[
+                {
+                    "row-number": 1,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value 'a' is not a valid integer",
+                }
+            ])
+        ]
+
+    def test_skip_row(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": {"key": "int", "on-error": "skip-row"},
+                        "column-number": 1,
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"a"))
+        assert rows == []
+
+
+class TestHandleValidationError(TestCase):
+    def test_default_behavior_raise(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "validators": [
+                            {
+                                "name": "greater-than",
+                                "parameters": {"threshold": 0},
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+
+        rows = list(schema.stream_parse(b"-1"))
+
+        assert rows == [
+            ParsedRow(row_number=1, values={}, errors=[
+                {
+                    "row-number": 1,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value must be greater than 0",
+                }
+            ])
+        ]
+
+    def test_skip_row(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "validators": [
+                            {
+                                "name": "greater-than",
+                                "parameters": {"threshold": 0},
+                                "on-error": "skip-row",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"-1"))
+        assert rows == []
+
+
+class TestHandlePostProcessorError(TestCase):
+    class FailPostProcessor(PostProcessor):
+        def transform(self, value: Any) -> Any:
+            raise ValueError("test error")
+
+        @staticmethod
+        def key() -> str:
+            return "fail-post-processor"
+
+    def test_default_behavior_raise(self):
+        PostProcessor.register(self.FailPostProcessor)
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "post-processors": [
+                            {
+                                "name": "fail-post-processor",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert rows == [ParsedRow(row_number=1, values={}, errors=[
+                {
+                    "row-number": 1,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "test error",
+                }
+            ])]
+
+    def test_skip_row(self):
+        PostProcessor.register(self.FailPostProcessor)
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "post-processors": [
+                            {
+                                "name": "fail-post-processor",
+                                "on-error": "skip-row",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert rows == []
+
+
+class TestHandlePreProcessorError(TestCase):
+    class FailPreProcessor(PreProcessor):
+        def transform(self, value: Any) -> Any:
+            raise ValueError("test error")
+
+        @staticmethod
+        def key() -> str:
+            return "fail-pre-processor"
+
+    def test_default_behavior_raise(self):
+        PreProcessor.register(self.FailPreProcessor)
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "pre-processors": [
+                            {
+                                "name": "fail-pre-processor",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert rows == [ParsedRow(row_number=1, values={}, errors=[
+                {
+                    "row-number": 1,
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "test error",
+                }
+            ])]
+
+    def test_skip_row(self):
+        PreProcessor.register(self.FailPreProcessor)
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "pre-processors": [
+                            {
+                                "name": "fail-pre-processor",
+                                "on-error": "skip-row",
+                            }
+                        ],
+                    }
+                ],
+            }
+        )
+        rows = list(schema.stream_parse(b"1"))
+        assert rows == []

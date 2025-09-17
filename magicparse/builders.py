@@ -1,7 +1,7 @@
 from abc import ABC
 from decimal import Decimal
 
-from .transform import Transform
+from .transform import Transform, OnError
 
 
 class Builder(Transform, ABC):
@@ -17,14 +17,16 @@ class Builder(Transform, ABC):
         except:
             raise ValueError(f"invalid builder '{name}'")
 
+        on_error = options.get("on-error", OnError.RAISE)
         if "parameters" in options:
-            return builder(**options["parameters"])
+            return builder(on_error=on_error, **options["parameters"])
         else:
-            return builder()
+            return builder(on_error=on_error)
 
 
 class Concat(Builder):
-    def __init__(self, fields: list[str]) -> None:
+    def __init__(self, on_error: OnError, fields: list[str]) -> None:
+        super().__init__(on_error)
         if (
             not fields
             or isinstance(fields, str)
@@ -39,7 +41,7 @@ class Concat(Builder):
 
         self.fields = fields
 
-    def apply(self, row: dict) -> str:
+    def transform(self, row: dict) -> str:
         return "".join(row[field] for field in self.fields)
 
     @staticmethod
@@ -48,7 +50,8 @@ class Concat(Builder):
 
 
 class Divide(Builder):
-    def __init__(self, numerator: str, denominator: str) -> None:
+    def __init__(self, on_error: OnError, numerator: str, denominator: str) -> None:
+        super().__init__(on_error)
         if not numerator or not isinstance(numerator, str):
             raise ValueError(
                 "builder 'divide': " "'numerator' parameter must be a non null str"
@@ -60,7 +63,7 @@ class Divide(Builder):
         self.numerator = numerator
         self.denominator = denominator
 
-    def apply(self, row: dict) -> Decimal:
+    def transform(self, row: dict) -> Decimal:
         return row[self.numerator] / row[self.denominator]
 
     @staticmethod
@@ -69,7 +72,8 @@ class Divide(Builder):
 
 
 class Multiply(Builder):
-    def __init__(self, x_factor: str, y_factor: str) -> None:
+    def __init__(self, on_error: OnError, x_factor: str, y_factor: str) -> None:
+        super().__init__(on_error)
         if not x_factor or not isinstance(x_factor, str):
             raise ValueError(
                 "builder 'multiply': " "'x_factor' parameter must be a non null str"
@@ -81,7 +85,7 @@ class Multiply(Builder):
         self.x_factor = x_factor
         self.y_factor = y_factor
 
-    def apply(self, row: dict):
+    def transform(self, row: dict):
         return row[self.x_factor] * row[self.y_factor]
 
     @staticmethod
