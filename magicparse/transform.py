@@ -11,11 +11,10 @@ class Ok:
 
 @dataclass(frozen=True, slots=True)
 class SkipRow:
-    pass
+    exception: Exception
 
 
 type Result = Ok | SkipRow
-
 
 
 class OnError(Enum):
@@ -31,19 +30,15 @@ class Transform(ABC):
     def build(cls, options: dict) -> "Transform":
         pass
 
-    def apply(
-        self, last_result: Result
-    ) -> Result:
+    def apply(self, last_result: Result) -> Result:
         if isinstance(last_result, SkipRow):
             return last_result
 
         try:
-            return Ok(
-                value=self.transform(last_result.value)
-            )
-        except Exception:
+            return Ok(value=self.transform(last_result.value))
+        except Exception as exc:
             if self.on_error == OnError.SKIP_ROW.value:
-                return SkipRow()
+                return SkipRow(exception=exc)
             raise
 
     @abstractmethod
