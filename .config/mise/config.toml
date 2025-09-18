@@ -16,5 +16,4 @@ _.python.venv = { path = ".venv", create = false }
 
 [tasks.test]
 description = "🐍 Run tests"
-depends = ["start_db"]
 run = "pytest -s"
