@@ -1,7 +1,19 @@
 from abc import ABC, abstractclassmethod, abstractmethod, abstractstaticmethod
 from typing import Any
+from dataclasses import dataclass
 
-from .parsed_field import LastTransformSuccess, LastTransformFailed
+
+@dataclass(frozen=True, slots=True)
+class Ok:
+    value: Any
+
+
+@dataclass(frozen=True, slots=True)
+class Skip:
+    pass
+
+
+type Result = Ok | Skip
 
 
 class Transform(ABC):
@@ -13,21 +25,21 @@ class Transform(ABC):
         pass
 
     def apply(
-        self, last_transform_result: LastTransformSuccess | LastTransformFailed | None
-    ) -> LastTransformSuccess | LastTransformFailed | None:
+        self, last_transform_result: Result | None
+    ) -> Result | None:
         if last_transform_result is None:
             return None
 
-        if isinstance(last_transform_result, LastTransformFailed):
+        if isinstance(last_transform_result, Skip):
             return last_transform_result
 
         try:
-            return LastTransformSuccess(
+            return Ok(
                 value=self.transform(last_transform_result.value)
             )
         except Exception as e:
             if self.on_error == "skip-row":
-                return LastTransformFailed(skip_row=True)
+                return Skip()
             raise e
 
     @abstractmethod

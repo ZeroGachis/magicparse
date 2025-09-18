@@ -3,7 +3,7 @@ import pytest
 from magicparse.fields import ComputedField
 from unittest import TestCase
 
-from magicparse.parsed_field import LastTransformSuccess
+from magicparse.transform import Ok
 
 
 class TestBuild(TestCase):
@@ -34,7 +34,7 @@ class TestBuild(TestCase):
 
         computed = field.parse({"code_1": "01", "code_2": "02"})
 
-        assert computed == LastTransformSuccess(value="0102")
+        assert computed == Ok(value="0102")
 
     def test_error_format(self):
         field = ComputedField(

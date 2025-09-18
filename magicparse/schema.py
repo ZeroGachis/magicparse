@@ -2,14 +2,10 @@ import codecs
 from abc import ABC, abstractmethod
 import csv
 from dataclasses import dataclass
-from .fields import Field, ComputedField, LastTransformFailed
+from .fields import Field, ComputedField
+from .transform import Skip
 from io import BytesIO
 from typing import Any, Dict, List, Tuple, Union, Iterable
-
-
-@dataclass(frozen=True, slots=True)
-class SkippedRow:
-    pass
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,13 +84,13 @@ class Schema(ABC):
                 continue
 
             parsed_fields = self.process_fields(self.fields, row, row_number)
-            if isinstance(parsed_fields, SkippedRow):
+            if isinstance(parsed_fields, Skip):
                 continue
 
             computed_fields = self.process_fields(
                 self.computed_fields, parsed_fields.values, row_number
             )
-            if isinstance(computed_fields, SkippedRow):
+            if isinstance(computed_fields, Skip):
                 continue
 
             yield ParsedRow(
@@ -105,7 +101,7 @@ class Schema(ABC):
 
     def process_fields(
         self, fields: List[Field], row: List[str], row_number: int
-    ) -> ParsedRow | SkippedRow:
+    ) -> ParsedRow | Skip:
         item = {}
         errors = []
         for field in fields:
@@ -116,8 +112,8 @@ class Schema(ABC):
                 errors.append({"row-number": row_number, **field.error(exc)})
                 continue
 
-            if isinstance(parsed_value, LastTransformFailed) and parsed_value.skip_row:
-                return SkippedRow()
+            if isinstance(parsed_value, Skip):
+                return Skip()
             item[field.key] = parsed_value.value
 
         return ParsedRow(row_number, item, errors)

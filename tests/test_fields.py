@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 import pytest
-from magicparse.parsed_field import LastTransformSuccess
+from magicparse.transform import Ok
 from magicparse.type_converters import DecimalConverter, StrConverter
 from magicparse.fields import ColumnarField, CsvField, Field
 from magicparse.post_processors import Divide
@@ -34,7 +34,7 @@ def test_chain_transformations():
     assert isinstance(field.transforms[2], RegexMatches)
 
     result = field.parse("   mac adam    ")
-    assert result == LastTransformSuccess(value="mac adam")
+    assert result == Ok(value="mac adam")
 
 
 def test_chain_transformations_with_post_processors():
@@ -57,7 +57,7 @@ def test_chain_transformations_with_post_processors():
     assert isinstance(field.transforms[0], Replace)
     assert isinstance(field.transforms[1], DecimalConverter)
     assert isinstance(field.transforms[2], Divide)
-    assert field.parse("XXX150") == LastTransformSuccess(value=Decimal("1.50"))
+    assert field.parse("XXX150") == Ok(value=Decimal("1.50"))
 
 
 def test_csv_error_format():
@@ -104,8 +104,8 @@ def test_optional_field():
             "post-processors": [{"name": "divide", "parameters": {"denominator": 100}}],
         }
     )
-    assert field.parse("XXX150") == LastTransformSuccess(value=Decimal("1.50"))
-    assert field.parse("") == LastTransformSuccess(value=None)
+    assert field.parse("XXX150") == Ok(value=Decimal("1.50"))
+    assert field.parse("") == Ok(value=None)
 
 
 def test_required_field():
@@ -116,7 +116,7 @@ def test_required_field():
             "optional": False,
         }
     )
-    assert field.parse("1.5") == LastTransformSuccess(value=Decimal("1.50"))
+    assert field.parse("1.5") == Ok(value=Decimal("1.50"))
 
 
 def test_require_field_with_empty_value():
