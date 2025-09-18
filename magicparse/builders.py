@@ -93,4 +93,29 @@ class Multiply(Builder):
         return "multiply"
 
 
-builtins = [Concat, Divide, Multiply]
+class Coalesce(Builder):
+    def __init__(self, on_error: OnError, fields: list[str]) -> None:
+        super().__init__(on_error)
+        if not fields:
+            raise ValueError("parameters should defined fields to coalesce")
+        if (
+            not isinstance(fields, list)
+            or not all(isinstance(field, str) for field in fields)
+            or len(fields) < 2
+        ):
+            raise ValueError("parameters should have two fields at least")
+
+        self.fields = fields
+
+    def transform(self, row: dict) -> str:
+        for field in self.fields:
+            if row[field]:
+                return row[field]
+        return None
+
+    @staticmethod
+    def key() -> str:
+        return "coalesce"
+
+
+builtins = [Concat, Divide, Multiply, Coalesce]

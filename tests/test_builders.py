@@ -234,3 +234,58 @@ class TestMultiply(TestCase):
         result = builder.transform({"price": 1.5, "unit": 2})
 
         assert result == 3
+
+
+class TestCoalesce(TestCase):
+    def test_no_params(self):
+        with pytest.raises(TypeError):
+            Builder.build({"name": "coalesce"})
+
+    def test_empty_params(self):
+        with pytest.raises(TypeError):
+            Builder.build({"name": "coalesce", "parameters": ""})
+
+    def test_fields_params_empty(self):
+        with pytest.raises(
+            ValueError,
+            match="parameters should defined fields to coalesce"
+        ):
+            Builder.build({"name": "coalesce", "parameters": {"fields": ""}})
+
+    def test_fields_params_not_a_list_of_str(self):
+        with pytest.raises(
+            ValueError,
+            match="parameters should have two fields at least"
+        ):
+            Builder.build({"name": "coalesce", "parameters": {"fields": "xxx"}})
+
+    def test_fields_params_has_less_than_two_fields(self):
+        with pytest.raises(
+            ValueError,
+            match="parameters should have two fields at least"
+        ):
+            Builder.build({"name": "coalesce", "parameters": {"fields": ["field"]}})
+
+    def test_return_first_non_empty_value(self):
+        coalesce = Builder.build(
+            {
+                "name": "coalesce",
+                "parameters": {"fields": ["field1", "field2"]}
+            }
+        )
+
+        result = coalesce.transform({"field1": "", "field2": "value"})
+
+        assert result == "value"
+
+    def test_return_none_if_all_values_are_empty(self):
+        coalesce = Builder.build(
+            {
+                "name": "coalesce",
+                "parameters": {"fields": ["field1", "field2"]}
+            }
+        )
+
+        result = coalesce.transform({"field1": "", "field2": ""})
+
+        assert result is None
