@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from magicparse import Schema
+from magicparse.schema import RowParsed
 
 
 class TestCsvEncoding(TestCase):
@@ -12,10 +13,13 @@ class TestCsvEncoding(TestCase):
             }
         )
 
-        rows, errors = schema.parse("José\n李\n💩\n".encode("utf-8"))
+        rows = schema.parse("José\n李\n💩\n".encode("utf-8"))
 
-        assert len(errors) == 0
-        assert rows == [{"name": "José"}, {"name": "李"}, {"name": "💩"}]
+        assert rows == [
+            RowParsed(row_number=1, values={"name": "José"}),
+            RowParsed(row_number=2, values={"name": "李"}),
+            RowParsed(row_number=3, values={"name": "💩"}),
+        ]
 
     def test_exotic_encoding(self):
         schema = Schema.build(
@@ -26,17 +30,22 @@ class TestCsvEncoding(TestCase):
             }
         )
 
-        rows, errors = schema.parse(
+        rows = schema.parse(
             "Да здравствует Владимир проклятый\n"
             "Да здравствует Карл Маркс\n"
             "Да здравствует Россия\n".encode("iso8859_5")
         )
 
-        assert len(errors) == 0
         assert rows == [
-            {"name": "Да здравствует Владимир проклятый"},
-            {"name": "Да здравствует Карл Маркс"},
-            {"name": "Да здравствует Россия"},
+            RowParsed(
+                row_number=1, values={"name": "Да здравствует Владимир проклятый"}
+            ),
+            RowParsed(
+                row_number=2, values={"name": "Да здравствует Карл Маркс"}
+            ),
+            RowParsed(
+                row_number=3, values={"name": "Да здравствует Россия"}
+            ),
         ]
 
 
@@ -56,10 +65,13 @@ class TestExoticEncoding(TestCase):
             }
         )
 
-        rows, errors = schema.parse("José\n李   \n💩   \n".encode("utf-8"))
+        rows = schema.parse("José\n李   \n💩   \n".encode("utf-8"))
 
-        assert len(errors) == 0
-        assert rows == [{"name": "José"}, {"name": "李   "}, {"name": "💩   "}]
+        assert rows == [
+            RowParsed(row_number=1, values={"name": "José"}),
+            RowParsed(row_number=2, values={"name": "李   "}),
+            RowParsed(row_number=3, values={"name": "💩   "}),
+        ]
 
     def test_exotic_encoding(self):
         schema = Schema.build(
@@ -77,15 +89,23 @@ class TestExoticEncoding(TestCase):
             }
         )
 
-        rows, errors = schema.parse(
+        rows = schema.parse(
             "Да здравствует Владимир проклятый\n"
             "Да здравствует Карл Маркс        \n"
             "Да здравствует Россия            \n".encode("iso8859_5")
         )
 
-        assert len(errors) == 0
         assert rows == [
-            {"name": "Да здравствует Владимир проклятый"},
-            {"name": "Да здравствует Карл Маркс        "},
-            {"name": "Да здравствует Россия            "},
+            RowParsed(
+                row_number=1,
+                values={"name": "Да здравствует Владимир проклятый"}
+            ),
+            RowParsed(
+                row_number=2,
+                values={"name": "Да здравствует Карл Маркс        "}
+            ),
+            RowParsed(
+                row_number=3,
+                values={"name": "Да здравствует Россия            "}
+            ),
         ]

@@ -6,13 +6,24 @@ from dataclasses import dataclass
 from magicparse.transform import SkipRow
 from .fields import Field, ComputedField
 from io import BytesIO
-from typing import Any, Dict, List, Tuple, Union, Iterable
+from typing import Any, Dict, List, Union, Iterable
 
 
 @dataclass(frozen=True, slots=True)
-class ParsedRow:
+class RowParsed:
     row_number: int
     values: dict
+
+
+@dataclass(frozen=True, slots=True)
+class RowSkipped:
+    row_number: int
+    errors: list[dict]
+
+
+@dataclass(frozen=True, slots=True)
+class RowFailed:
+    row_number: int
     errors: list[dict]
 
 
@@ -54,19 +65,14 @@ class Schema(ABC):
 
         cls.registry[schema.key()] = schema
 
-    def parse(self, data: Union[bytes, BytesIO]) -> Tuple[List[dict], List[dict]]:
-        items = []
-        errors = []
+    def parse(
+        self, data: Union[bytes, BytesIO]
+    ) -> List[RowParsed] | List[RowSkipped] | List[RowFailed]:
+        return list(self.stream_parse(data))
 
-        for parsed_row in self.stream_parse(data):
-            if parsed_row.errors:
-                errors.extend(parsed_row.errors)
-            else:
-                items.append(parsed_row.values)
-
-        return items, errors
-
-    def stream_parse(self, data: Union[bytes, BytesIO]) -> Iterable[ParsedRow]:
+    def stream_parse(
+        self, data: Union[bytes, BytesIO]
+    ) -> Iterable[RowParsed | RowSkipped | RowFailed]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -84,41 +90,48 @@ class Schema(ABC):
             if not any(row):
                 continue
 
-            parsed_fields = self.process_fields(self.fields, row, row_number)
-            if isinstance(parsed_fields, SkipRow):
+            fields = self.process_fields(self.fields, row, row_number)
+            if not isinstance(fields, RowParsed):
+                yield fields
                 continue
 
             computed_fields = self.process_fields(
-                self.computed_fields, parsed_fields.values, row_number
+                self.computed_fields, fields.values, row_number
             )
-            if isinstance(computed_fields, SkipRow):
+            if not isinstance(computed_fields, RowParsed):
+                yield computed_fields
                 continue
 
-            yield ParsedRow(
-                row_number,
-                {**parsed_fields.values, **computed_fields.values},
-                parsed_fields.errors + computed_fields.errors,
-            )
+            yield RowParsed(row_number, {**fields.values, **computed_fields.values})
 
     def process_fields(
         self, fields: List[Field], row: List[str], row_number: int
-    ) -> ParsedRow | SkipRow:
+    ) -> RowParsed | RowSkipped | RowFailed:
         item = {}
         errors = []
+        skip_row = False
         for field in fields:
             try:
                 parsed_value = field.parse(row)
-
             except Exception as exc:
-                errors.append({"row-number": row_number, **field.error(exc)})
+                errors.append(field.error(exc))
                 continue
 
             if isinstance(parsed_value, SkipRow):
-                return parsed_value
+                skip_row = True
+                errors.append(field.error(parsed_value.exception))
+                continue
 
             item[field.key] = parsed_value.value
 
-        return ParsedRow(row_number, item, errors)
+        if errors:
+            return (
+                RowSkipped(row_number, errors)
+                if skip_row
+                else RowFailed(row_number, errors)
+            )
+
+        return RowParsed(row_number, item)
 
 
 class CsvSchema(Schema):

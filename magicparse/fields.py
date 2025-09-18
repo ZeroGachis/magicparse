@@ -27,9 +27,7 @@ class Field(ABC):
             pre_processors + [type_converter] + validators + post_processors
         )
 
-    def _process_raw_value(
-        self, raw_value: str
-    ) -> Result:
+    def _process_raw_value(self, raw_value: str) -> Result:
         if not raw_value:
             if self.optional:
                 return Ok(value=None)

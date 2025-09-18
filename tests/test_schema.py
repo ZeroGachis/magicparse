@@ -4,7 +4,7 @@ from typing import Any
 from magicparse import Schema
 from magicparse.post_processors import PostProcessor
 from magicparse.pre_processors import PreProcessor
-from magicparse.schema import ColumnarSchema, CsvSchema, ParsedRow
+from magicparse.schema import ColumnarSchema, CsvSchema, RowParsed, RowFailed, RowSkipped
 from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
@@ -64,15 +64,13 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"")
-        assert not rows
-        assert not errors
+        rows = schema.parse(b"")
+        assert rows == []
 
     def test_with_no_field_definition(self):
         schema = Schema.build({"file_type": "csv", "fields": []})
-        rows, errors = schema.parse(b"a,b,c")
-        assert rows == [{}]
-        assert not errors
+        rows = schema.parse(b"a,b,c")
+        assert rows == [RowParsed(row_number=1, values={})]
 
     def test_without_header(self):
         schema = Schema.build(
@@ -81,9 +79,8 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"1")
-        assert rows == [{"name": "1"}]
-        assert not errors
+        rows = schema.parse(b"1")
+        assert rows == [RowParsed(row_number=1, values={"name": "1"})]
 
     def test_with_header(self):
         schema = Schema.build(
@@ -93,9 +90,8 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"column_name\n1")
-        assert rows == [{"name": "1"}]
-        assert not errors
+        rows = schema.parse(b"column_name\n1")
+        assert rows == [RowParsed(row_number=2, values={"name": "1"})]
 
     def test_error_display_row_number(self):
         schema = Schema.build(
@@ -104,15 +100,13 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "age", "type": "int", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"a")
-        assert not rows
-        assert errors == [
-            {
-                "row-number": 1,
+        rows = schema.parse(b"a")
+        assert rows == [
+            RowFailed(row_number=1, errors=[{
                 "column-number": 1,
                 "field-key": "age",
                 "error": "value 'a' is not a valid integer",
-            }
+            }])
         ]
 
     def test_errors_do_not_halt_parsing(self):
@@ -122,15 +116,15 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "age", "type": "int", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"1\na\n2")
-        assert rows == [{"age": 1}, {"age": 2}]
-        assert errors == [
-            {
-                "row-number": 2,
+        rows = schema.parse(b"1\na\n2")
+        assert rows == [
+            RowParsed(row_number=1, values={"age": 1}),
+            RowFailed(row_number=2, errors=[{
                 "column-number": 1,
                 "field-key": "age",
                 "error": "value 'a' is not a valid integer",
-            }
+            }]),
+            RowParsed(row_number=3, values={"age": 2}),
         ]
 
     def test_parse_should_skip_empty_lines(self):
@@ -140,13 +134,12 @@ class TestCsvParse(TestCase):
                 "fields": [{"key": "name", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(
+        rows = schema.parse(
             b"""1
 
 """
         )
-        assert rows == [{"name": "1"}]
-        assert not errors
+        assert rows == [RowParsed(row_number=1, values={"name": "1"})]
 
 
 class TestColumnarParse(TestCase):
@@ -164,15 +157,13 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse(b"")
-        assert not rows
-        assert not errors
+        rows = schema.parse(b"")
+        assert rows == []
 
     def test_with_no_field_definition(self):
         schema = Schema.build({"file_type": "columnar", "fields": []})
-        rows, errors = schema.parse(b"a")
-        assert rows == [{}]
-        assert not errors
+        rows = schema.parse(b"a")
+        assert rows == [RowParsed(row_number=1, values={})]
 
     def test_parse(self):
         schema = Schema.build(
@@ -188,9 +179,8 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse(b"1")
-        assert rows == [{"name": "1"}]
-        assert not errors
+        rows = schema.parse(b"1")
+        assert rows == [RowParsed(row_number=1, values={"name": "1"})]
 
     def test_error_display_row_number(self):
         schema = Schema.build(
@@ -201,16 +191,14 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse(b"a")
-        assert not rows
-        assert errors == [
-            {
-                "row-number": 1,
+        rows = schema.parse(b"a")
+        assert rows == [
+            RowFailed(row_number=1, errors=[{
                 "column-start": 0,
                 "column-length": 1,
                 "field-key": "age",
                 "error": "value 'a' is not a valid integer",
-            }
+            }])
         ]
 
     def test_errors_do_not_halt_parsing(self):
@@ -222,16 +210,16 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse(b"1\na\n2")
-        assert rows == [{"age": 1}, {"age": 2}]
-        assert errors == [
-            {
-                "row-number": 2,
+        rows = schema.parse(b"1\na\n2")
+        assert rows == [
+            RowParsed(row_number=1, values={"age": 1}),
+            RowFailed(row_number=2, errors=[{
                 "column-start": 0,
                 "column-length": 1,
                 "field-key": "age",
                 "error": "value 'a' is not a valid integer",
-            }
+            }]),
+            RowParsed(row_number=3, values={"age": 2}),
         ]
 
     def test_parse_should_skip_empty_lines(self):
@@ -248,13 +236,81 @@ class TestColumnarParse(TestCase):
                 ],
             }
         )
-        rows, errors = schema.parse(
+        rows = schema.parse(
             b"""8013109C
 
 """
         )
-        assert rows == [{"name": "8013109C"}]
-        assert not errors
+        assert rows == [RowParsed(row_number=1, values={"name": "8013109C"})]
+
+    def test_should_return_all_errors_in_a_row(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "delimiter": ";",
+                "fields": [
+                    {"key": "age", "type": "int", "column-number": 1},
+                    {"key": "age2", "type": "int", "column-number": 2}
+                ],
+            }
+        )
+
+        rows = schema.parse(b"a;a")
+
+        assert rows == [
+            RowFailed(row_number=1, errors=[
+                {
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value 'a' is not a valid integer",
+                },
+                {
+                    "column-number": 2,
+                    "field-key": "age2",
+                    "error": "value 'a' is not a valid integer",
+                }
+            ])
+        ]
+
+    def test_skip_is_prioritized_over_errors(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "delimiter": ";",
+                "fields": [
+                    {
+                        "key": "age",
+                        "type": "int",
+                        "column-number": 1,
+                        "validators": [
+                            {
+                                "name": "greater-than",
+                                "parameters": {"threshold": 0},
+                                "on-error": "skip-row"
+                            }
+                        ],
+                    },
+                    {"key": "age2", "type": "int", "column-number": 2}
+                ],
+            }
+        )
+
+        rows = schema.parse(b"-1;a")
+
+        assert rows == [
+            RowSkipped(row_number=1, errors=[
+                {
+                    "column-number": 1,
+                    "field-key": "age",
+                    "error": "value must be greater than 0",
+                },
+                {
+                    "column-number": 2,
+                    "field-key": "age2",
+                    "error": "value 'a' is not a valid integer",
+                }
+            ])
+        ]
 
 
 class TestQuotingSetting(TestCase):
@@ -266,9 +322,10 @@ class TestQuotingSetting(TestCase):
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"column_1\n6.66")
-        assert rows == [{"column_1": Decimal("6.66")}]
-        assert not errors
+        rows = schema.parse(b"column_1\n6.66")
+        assert rows == [
+            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
+        ]
 
     def test_single_quote(self):
         schema = Schema.build(
@@ -279,9 +336,10 @@ class TestQuotingSetting(TestCase):
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b"column_1\n'6.66'")
-        assert rows == [{"column_1": Decimal("6.66")}]
-        assert not errors
+        rows = schema.parse(b"column_1\n'6.66'")
+        assert rows == [
+            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
+        ]
 
     def test_double_quote(self):
         schema = Schema.build(
@@ -292,9 +350,10 @@ class TestQuotingSetting(TestCase):
                 "fields": [{"key": "column_1", "type": "decimal", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b'column_1\n"6.66"')
-        assert rows == [{"column_1": Decimal("6.66")}]
-        assert not errors
+        rows = schema.parse(b'column_1\n"6.66"')
+        assert rows == [
+            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
+        ]
 
     def test_asymetrical_quote(self):
         schema = Schema.build(
@@ -304,8 +363,10 @@ class TestQuotingSetting(TestCase):
                 "fields": [{"key": "column_1", "type": "str", "column-number": 1}],
             }
         )
-        rows, errors = schema.parse(b'column_1\n"test ""quoting""')
-        assert rows == [{"column_1": '"test ""quoting""'}]
+        rows = schema.parse(b'column_1\n"test ""quoting""')
+        assert rows == [
+            RowParsed(row_number=2, values={"column_1": '"test ""quoting""'})
+        ]
 
 
 class TestRegister(TestCase):
@@ -340,20 +401,17 @@ class TestSteamParse(TestCase):
         )
         rows = list(schema.stream_parse(b"1\na\n2"))
         assert rows == [
-            ParsedRow(row_number=1, values={"age": 1}, errors=[]),
-            ParsedRow(
+            RowParsed(row_number=1, values={"age": 1}),
+            RowFailed(
                 row_number=2,
-                values={},
                 errors=[
                     {
-                        "row-number": 2,
                         "column-number": 1,
                         "field-key": "age",
                         "error": "value 'a' is not a valid integer",
                     }
-                ],
-            ),
-            ParsedRow(row_number=3, values={"age": 2}, errors=[]),
+                ]),
+            RowParsed(row_number=3, values={"age": 2}),
         ]
 
     def test_stream_parse_with_header_first_row_number_is_2(self):
@@ -428,14 +486,11 @@ class TestHandleTypeError(TestCase):
         )
         rows = list(schema.stream_parse(b"a"))
         assert rows == [
-            ParsedRow(row_number=1, values={}, errors=[
-                {
-                    "row-number": 1,
+            RowFailed(row_number=1, errors=[{
                     "column-number": 1,
                     "field-key": "age",
                     "error": "value 'a' is not a valid integer",
-                }
-            ])
+                }])
         ]
 
     def test_skip_row(self):
@@ -452,7 +507,12 @@ class TestHandleTypeError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"a"))
-        assert rows == []
+        assert rows == [RowSkipped(row_number=1, errors=[{
+                "column-number": 1,
+                "field-key": "age",
+                "error": "value 'a' is not a valid integer",
+            }
+        ])]
 
 
 class TestHandleValidationError(TestCase):
@@ -479,9 +539,7 @@ class TestHandleValidationError(TestCase):
         rows = list(schema.stream_parse(b"-1"))
 
         assert rows == [
-            ParsedRow(row_number=1, values={}, errors=[
-                {
-                    "row-number": 1,
+            RowFailed(row_number=1, errors=[{
                     "column-number": 1,
                     "field-key": "age",
                     "error": "value must be greater than 0",
@@ -510,7 +568,12 @@ class TestHandleValidationError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"-1"))
-        assert rows == []
+        assert rows == [RowSkipped(row_number=1, errors=[{
+                "column-number": 1,
+                "field-key": "age",
+                "error": "value must be greater than 0",
+            }
+        ])]
 
 
 class TestHandlePostProcessorError(TestCase):
@@ -542,9 +605,7 @@ class TestHandlePostProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [ParsedRow(row_number=1, values={}, errors=[
-                {
-                    "row-number": 1,
+        assert rows == [RowFailed(row_number=1, errors=[{
                     "column-number": 1,
                     "field-key": "age",
                     "error": "test error",
@@ -572,7 +633,12 @@ class TestHandlePostProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == []
+        assert rows == [RowSkipped(row_number=1, errors=[{
+                "column-number": 1,
+                "field-key": "age",
+                "error": "test error",
+            }
+        ])]
 
 
 class TestHandlePreProcessorError(TestCase):
@@ -604,9 +670,7 @@ class TestHandlePreProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [ParsedRow(row_number=1, values={}, errors=[
-                {
-                    "row-number": 1,
+        assert rows == [RowFailed(row_number=1, errors=[{
                     "column-number": 1,
                     "field-key": "age",
                     "error": "test error",
@@ -634,4 +698,9 @@ class TestHandlePreProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == []
+        assert rows == [RowSkipped(row_number=1, errors=[{
+                "column-number": 1,
+                "field-key": "age",
+                "error": "test error",
+            }
+        ])]
