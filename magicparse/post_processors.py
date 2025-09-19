@@ -36,7 +36,7 @@ class Divide(PostProcessor):
 
         self.denominator = denominator
 
-    def transform(self, value: Number) -> Number:
+    def apply(self, value: Number) -> Number:
         return value / self.denominator
 
     @staticmethod
@@ -57,7 +57,7 @@ class Round(PostProcessor):
 
         self.precision = precision
 
-    def transform(self, value: Number) -> Number:
+    def apply(self, value: Number) -> Number:
         return round(value, self.precision)
 
     @staticmethod

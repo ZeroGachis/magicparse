@@ -30,19 +30,8 @@ class Transform(ABC):
     def build(cls, options: dict) -> "Transform":
         pass
 
-    def apply(self, last_result: Result) -> Result:
-        if isinstance(last_result, SkipRow):
-            return last_result
-
-        try:
-            return Ok(value=self.transform(last_result.value))
-        except Exception as exc:
-            if self.on_error == OnError.SKIP_ROW.value:
-                return SkipRow(exception=exc)
-            raise
-
     @abstractmethod
-    def transform(self, value: Any | None) -> Any | None:
+    def apply(self, value: Any) -> Any:
         pass
 
     @abstractstaticmethod

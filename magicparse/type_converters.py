@@ -12,7 +12,7 @@ class TypeConverter(Transform):
         super().__init__(on_error)
         self.nullable = nullable
 
-    def transform(self, value: str | None) -> Any | None:
+    def apply(self, value: str | None) -> Any | None:
         if value is None and self.nullable:
             return None
 

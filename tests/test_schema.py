@@ -4,7 +4,9 @@ from typing import Any
 from magicparse import Schema
 from magicparse.post_processors import PostProcessor
 from magicparse.pre_processors import PreProcessor
-from magicparse.schema import ColumnarSchema, CsvSchema, RowParsed, RowFailed, RowSkipped
+from magicparse.schema import (
+    ColumnarSchema, CsvSchema, RowParsed, RowFailed, RowSkipped
+)
 from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
@@ -630,7 +632,7 @@ class TestHandleValidationError(TestCase):
 
 class TestHandlePostProcessorError(TestCase):
     class FailPostProcessor(PostProcessor):
-        def transform(self, value: Any) -> Any:
+        def apply(self, value: Any) -> Any:
             raise ValueError("test error")
 
         @staticmethod
@@ -695,7 +697,7 @@ class TestHandlePostProcessorError(TestCase):
 
 class TestHandlePreProcessorError(TestCase):
     class FailPreProcessor(PreProcessor):
-        def transform(self, value: Any) -> Any:
+        def apply(self, value: Any) -> Any:
             raise ValueError("test error")
 
         @staticmethod
