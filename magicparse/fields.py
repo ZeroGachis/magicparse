@@ -41,10 +41,10 @@ class Field(ABC):
         return value
 
     @abstractmethod
-    def _read_raw_value(self, row) -> str:
+    def _read_raw_value(self, row: List[str] | dict) -> str:
         pass
 
-    def parse(self, row) -> Result:
+    def parse(self, row: List[str] | dict) -> Result:
         raw_value = self._read_raw_value(row)
         return self._process_raw_value(raw_value)
 
@@ -76,7 +76,7 @@ class CsvField(Field):
         super().__init__(key, options)
         self.column_number = options["column-number"]
 
-    def _read_raw_value(self, row: List[str]) -> str:
+    def _read_raw_value(self, row: List[str] | dict) -> str:
         return row[self.column_number - 1]
 
     def error(self, exception: Exception) -> dict:
@@ -94,7 +94,7 @@ class ColumnarField(Field):
         self.column_length = options["column-length"]
         self.column_end = self.column_start + self.column_length
 
-    def _read_raw_value(self, row: str) -> str:
+    def _read_raw_value(self, row: str | dict) -> str:
         return row[self.column_start : self.column_end]
 
     def error(self, exception: Exception) -> dict:
@@ -111,7 +111,7 @@ class ComputedField(Field):
         super().__init__(key, options)
         self.builder = Builder.build(options["builder"])
 
-    def _read_raw_value(self, row) -> str:
+    def _read_raw_value(self, row: List[str] | dict) -> str:
         return self.builder.transform(row)
 
     def error(self, exception: Exception) -> dict:

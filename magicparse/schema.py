@@ -112,7 +112,8 @@ class Schema(ABC):
         skip_row = False
         for field in fields:
             try:
-                parsed_value = field.parse(row)
+                source = row | item if isinstance(row, dict) else row
+                parsed_value = field.parse(source)
             except Exception as exc:
                 errors.append(field.error(exc))
                 continue
