@@ -1,6 +1,16 @@
 # magicparse 🛸
 
-Declarative parser
+Declarative parser for structured data files.
+
+## Installation
+
+```bash
+poetry install magicparse
+```
+
+## Requirements
+
+- Python 3.12+
 
 ## Usage
 
@@ -96,7 +106,7 @@ schema = {
 }
 
 
-rows, errors= magicparse.parse(data="...", schema=schema)
+rows = magicparse.parse(data="...", schema=schema)
 ```
 
 
@@ -124,9 +134,8 @@ schema = {
     ],
 }
 
-rows, errors = magicparse.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2", schema)
+rows = magicparse.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2", schema)
 assert rows == [{"shop-guid": "13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2"}]
-assert not errors
 ```
 
 ### Register a custom schema and parse content
@@ -152,9 +161,49 @@ schema = {
     ]
 }
 
-rows, errors = magicparse.parse("Joe|William|Jack|Averell", schema)
-assert not errors
+rows = magicparse.parse("Joe|William|Jack|Averell", schema)
 assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name": "Averell"}]
+```
+
+### Stream parsing
+
+For large files, you can use streaming to process data incrementally:
+
+```python
+import magicparse
+
+schema = {
+    "file_type": "csv",
+    "fields": [
+        {"key": "name", "type": "str", "column-number": 1}
+    ]
+}
+
+# Process data in chunks
+for row in magicparse.stream_parse(data="...", schema=schema):
+    match row:
+        case magicparse.RowParsed(values):  
+            print(f"The values {values}.")
+        case magicparse.RowFailed(errors):
+            print(f"The errors {errors}.")
+        case magicparse.RowSkipped(reason):
+            print(f"The errors {errors}.")
+        case _:  
+            print("Unknown type of row.")
+```
+
+### Custom encoding
+
+By default, magicparse uses UTF-8 encoding. You can specify a different encoding:
+
+```python
+schema = {
+    "file_type": "csv",
+    "encoding": "iso8859_5",  # or any other encoding
+    "fields": [
+        {"key": "name", "type": "str", "column-number": 1}
+    ]
+}
 ```
 
 ## API
@@ -187,6 +236,7 @@ assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name":
 
 - regex-matches
 - greater-than
+- not-null-or-empty
 
 #### Post-processors
 
@@ -202,3 +252,66 @@ Types, Pre-processors, Post-processors and validator is same as Field
 - concat
 - divide
 - multiply
+- coalesce
+
+## Return Types
+
+The parser returns a list of row objects:
+
+- **`RowParsed`**: Successfully parsed row with `values` dict
+- **`RowFailed`**: Failed to parse row with `errors` message
+- **`RowSkipped`**: Skipped row with `errors` message
+
+## Error Handling
+
+You can configure error handling for types, validators, and processors:
+
+```python
+{
+    "key": "price",
+    "type": {
+        "key": "decimal",
+        "nullable": True,  # Allow null values
+        "on-error": "skip-row"  # Skip on error instead of raising
+    }
+}
+```
+
+Error handling options:
+- `"raise"` (default): Raise exception on error
+- `"skip-row"`: Skip the row and continue processing
+
+## Docker
+
+The project includes Docker support:
+
+```bash
+# Build and run with docker-compose
+docker-compose up --build
+
+# Or build manually
+docker build -t magicparse .
+docker run -it magicparse
+```
+
+## Development
+
+### Setup
+
+```bash
+# Install dependencies
+poetry install
+
+# Run tests
+poetry run pytest
+
+# Format code
+poetry run black .
+
+# Lint code
+poetry run flake8
+```
+
+## License
+
+This project is licensed under the MIT License.
