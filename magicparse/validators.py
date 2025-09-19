@@ -28,7 +28,7 @@ class RegexMatches(Validator):
         super().__init__(on_error)
         self.pattern = re.compile(pattern)
 
-    def transform(self, value: str | None) -> str:
+    def apply(self, value: str | None) -> str:
         if re.match(self.pattern, value):
             return value
 
@@ -44,7 +44,7 @@ class GreaterThan(Validator):
         super().__init__(on_error)
         self.threshold = Decimal(threshold)
 
-    def transform(self, value: Decimal) -> Decimal:
+    def apply(self, value: Decimal) -> Decimal:
         if value > self.threshold:
             return value
         raise ValueError(f"value must be greater than {self.threshold}")
@@ -55,7 +55,7 @@ class GreaterThan(Validator):
 
 
 class NotNullOrEmpty(Validator):
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         if not value:
             raise ValueError("value must not be null or empty")
         return value

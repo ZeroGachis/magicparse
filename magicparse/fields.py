@@ -6,7 +6,7 @@ from .type_converters import TypeConverter
 from .post_processors import PostProcessor
 from .pre_processors import PreProcessor
 from .validators import Validator
-from .transform import Ok, Result
+from .transform import Ok, OnError, Result, SkipRow
 
 
 class Field(ABC):
@@ -35,10 +35,14 @@ class Field(ABC):
                 raise ValueError(
                     f"{self.key} field is required but the value was empty"
                 )
-        value = Ok(value=raw_value)
         for transform in self.transforms:
-            value = transform.apply(value)
-        return value
+            try:
+                raw_value = transform.apply(raw_value)
+            except Exception as exc:
+                if transform.on_error == OnError.SKIP_ROW.value:
+                    return SkipRow(exception=exc)
+                raise
+        return Ok(value=raw_value)
 
     @abstractmethod
     def _read_raw_value(self, row: List[str] | dict) -> str:
@@ -112,7 +116,7 @@ class ComputedField(Field):
         self.builder = Builder.build(options["builder"])
 
     def _read_raw_value(self, row: List[str] | dict) -> str:
-        return self.builder.transform(row)
+        return self.builder.apply(row)
 
     def error(self, exception: Exception) -> dict:
         return {

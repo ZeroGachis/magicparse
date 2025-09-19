@@ -53,7 +53,7 @@ class TestRegexMatches(TestCase):
             }
         )
 
-        assert validator.transform("9780201379624") == "9780201379624"
+        assert validator.apply("9780201379624") == "9780201379624"
 
     def test_does_not_match(self):
         validator = Validator.build(
@@ -65,7 +65,7 @@ class TestRegexMatches(TestCase):
         with pytest.raises(
             ValueError, match=r"string does not match regex '\^\\d\{13\}\$'"
         ):
-            validator.transform("hello")
+            validator.apply("hello")
 
 
 class TestRegister(TestCase):
@@ -74,7 +74,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "is-the-answer"
 
-        def transform(self, value):
+        def apply(self, value):
             if value == 42:
                 return value
             raise ValueError(f"{value} is not the answer !")
@@ -92,7 +92,7 @@ class TestGreaterThanValidator(TestCase):
             {"name": "greater-than", "parameters": {"threshold": 11}}
         )
 
-        assert validator.transform(12) == 12
+        assert validator.apply(12) == 12
 
     def test_it_successfully_returns_the_value_when_greater_than_decimal_threshold(
         self,
@@ -101,7 +101,7 @@ class TestGreaterThanValidator(TestCase):
             {"name": "greater-than", "parameters": {"threshold": 11.4}}
         )
 
-        assert validator.transform(11.5) == 11.5
+        assert validator.apply(11.5) == 11.5
 
     def test_it_raises_an_error_when_the_value_is_lower_than_threshold(self):
         validator = Validator.build(
@@ -109,7 +109,7 @@ class TestGreaterThanValidator(TestCase):
         )
 
         with pytest.raises(ValueError, match="value must be greater than 10"):
-            validator.transform(9.9999)
+            validator.apply(9.9999)
 
     def test_it_raises_an_error_when_the_value_is_equal_to_threshold(self):
         validator = Validator.build(
@@ -117,7 +117,7 @@ class TestGreaterThanValidator(TestCase):
         )
 
         with pytest.raises(ValueError, match="value must be greater than 10"):
-            validator.transform(10)
+            validator.apply(10)
 
 
 class TestNotNullOrEmptyValidator(TestCase):
@@ -126,7 +126,7 @@ class TestNotNullOrEmptyValidator(TestCase):
             {"name": "not-null-or-empty"}
         )
 
-        assert validator.transform("hello") == "hello"
+        assert validator.apply("hello") == "hello"
 
     def test_raise_when_the_value_is_null(self):
         validator = Validator.build(
@@ -134,7 +134,7 @@ class TestNotNullOrEmptyValidator(TestCase):
         )
 
         with pytest.raises(ValueError, match="value must not be null or empty"):
-            validator.transform(None)
+            validator.apply(None)
 
     def test_raises_when_the_value_is_empty(self):
         validator = Validator.build(
@@ -142,4 +142,4 @@ class TestNotNullOrEmptyValidator(TestCase):
         )
 
         with pytest.raises(ValueError, match="value must not be null or empty"):
-            validator.transform("")
+            validator.apply("")

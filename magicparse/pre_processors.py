@@ -27,7 +27,7 @@ class LeftPadZeroes(PreProcessor):
         super().__init__(on_error)
         self.width = width
 
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         return value.zfill(self.width)
 
     @staticmethod
@@ -41,7 +41,7 @@ class Map(PreProcessor):
         self.values = values
         self._keys = ", ".join(f"'{key}'" for key in self.values.keys())
 
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         try:
             return self.values[value]
         except:
@@ -60,7 +60,7 @@ class Replace(PreProcessor):
         self.pattern = pattern
         self.replacement = replacement
 
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         return value.replace(self.pattern, self.replacement)
 
     @staticmethod
@@ -69,7 +69,7 @@ class Replace(PreProcessor):
 
 
 class StripWhitespaces(PreProcessor):
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         return value.strip()
 
     @staticmethod
@@ -82,7 +82,7 @@ class LeftStrip(PreProcessor):
         super().__init__(on_error)
         self.characters = characters
 
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         return value.lstrip(self.characters)
 
     @staticmethod
@@ -101,7 +101,7 @@ class RegexExtract(PreProcessor):
 
         self.pattern = pattern
 
-    def transform(self, value: str) -> str:
+    def apply(self, value: str) -> str:
         match = re.match(self.pattern, value)
         if not match:
             raise ValueError(

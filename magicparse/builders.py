@@ -41,7 +41,7 @@ class Concat(Builder):
 
         self.fields = fields
 
-    def transform(self, row: dict) -> str:
+    def apply(self, row: dict) -> str:
         return "".join(row[field] for field in self.fields)
 
     @staticmethod
@@ -63,7 +63,7 @@ class Divide(Builder):
         self.numerator = numerator
         self.denominator = denominator
 
-    def transform(self, row: dict) -> Decimal:
+    def apply(self, row: dict) -> Decimal:
         return row[self.numerator] / row[self.denominator]
 
     @staticmethod
@@ -85,7 +85,7 @@ class Multiply(Builder):
         self.x_factor = x_factor
         self.y_factor = y_factor
 
-    def transform(self, row: dict):
+    def apply(self, row: dict):
         return row[self.x_factor] * row[self.y_factor]
 
     @staticmethod
@@ -107,7 +107,7 @@ class Coalesce(Builder):
 
         self.fields = fields
 
-    def transform(self, row: dict) -> str:
+    def apply(self, row: dict) -> str:
         for field in self.fields:
             if row[field]:
                 return row[field]

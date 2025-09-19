@@ -12,7 +12,7 @@ class TestBuild(TestCase):
         def key() -> str:
             return "without-param"
 
-        def transform(self, value):
+        def apply(self, value):
             pass
 
     class WithParamBuilder(Builder):
@@ -24,7 +24,7 @@ class TestBuild(TestCase):
         def key() -> str:
             return "with-param"
 
-        def transform(self, value):
+        def apply(self, value):
             pass
 
     def test_without_parameter(self):
@@ -77,14 +77,14 @@ class TestConcat(TestCase):
             {"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}}
         )
         with pytest.raises(KeyError):
-            builder.transform({})
+            builder.apply({})
 
     def test_concat_two_fields(self):
         builder = Builder.build(
             {"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}}
         )
 
-        result = builder.transform({"code_1": "X", "code_2": "Y"})
+        result = builder.apply({"code_1": "X", "code_2": "Y"})
 
         assert result == "XY"
 
@@ -93,7 +93,7 @@ class TestConcat(TestCase):
             {"name": "concat", "parameters": {"fields": ["code_1", "code_2", "code_3"]}}
         )
 
-        result = builder.transform({"code_1": "X", "code_2": "Y", "code_3": "Z"})
+        result = builder.apply({"code_1": "X", "code_2": "Y", "code_3": "Z"})
 
         assert result == "XYZ"
 
@@ -103,7 +103,7 @@ class TestConcat(TestCase):
         )
 
         with pytest.raises(TypeError):
-            builder.transform({"code_1": 1, "code_2": 2})
+            builder.apply({"code_1": 1, "code_2": 2})
 
 
 class TestDivide(TestCase):
@@ -141,7 +141,7 @@ class TestDivide(TestCase):
             }
         )
         with pytest.raises(KeyError):
-            builder.transform({})
+            builder.apply({})
 
     def test_numerator_not_valid(self):
         builder = Builder.build(
@@ -151,7 +151,7 @@ class TestDivide(TestCase):
             }
         )
         with pytest.raises(TypeError):
-            builder.transform({"price": "e", "price_by_unit": 1})
+            builder.apply({"price": "e", "price_by_unit": 1})
 
     def test_denominator_not_valid(self):
         builder = Builder.build(
@@ -161,7 +161,7 @@ class TestDivide(TestCase):
             }
         )
         with pytest.raises(TypeError):
-            builder.transform({"price": 1, "price_by_unit": "ee"})
+            builder.apply({"price": 1, "price_by_unit": "ee"})
 
     def test_valid_param(self):
         builder = Builder.build(
@@ -171,7 +171,7 @@ class TestDivide(TestCase):
             }
         )
 
-        result = builder.transform({"price": 1, "price_by_unit": 2})
+        result = builder.apply({"price": 1, "price_by_unit": 2})
 
         assert result == Decimal("0.5")
 
@@ -211,7 +211,7 @@ class TestMultiply(TestCase):
             }
         )
         with pytest.raises(KeyError):
-            builder.transform({})
+            builder.apply({})
 
     def test_x_y_factor_not_valid(self):
         builder = Builder.build(
@@ -221,7 +221,7 @@ class TestMultiply(TestCase):
             }
         )
         with pytest.raises(TypeError):
-            builder.transform({"price": "e", "unit": "e"})
+            builder.apply({"price": "e", "unit": "e"})
 
     def test_valid_param(self):
         builder = Builder.build(
@@ -231,7 +231,7 @@ class TestMultiply(TestCase):
             }
         )
 
-        result = builder.transform({"price": 1.5, "unit": 2})
+        result = builder.apply({"price": 1.5, "unit": 2})
 
         assert result == 3
 
@@ -274,7 +274,7 @@ class TestCoalesce(TestCase):
             }
         )
 
-        result = coalesce.transform({"field1": "", "field2": "value"})
+        result = coalesce.apply({"field1": "", "field2": "value"})
 
         assert result == "value"
 
@@ -286,6 +286,6 @@ class TestCoalesce(TestCase):
             }
         )
 
-        result = coalesce.transform({"field1": "", "field2": ""})
+        result = coalesce.apply({"field1": "", "field2": ""})
 
         assert result is None

@@ -70,13 +70,13 @@ class TestLeftPadZeroes(TestCase):
         pre_processor = PreProcessor.build(
             {"name": "left-pad-zeroes", "parameters": {"width": 10}}
         )
-        assert pre_processor.transform("abcdefghij") == "abcdefghij"
+        assert pre_processor.apply("abcdefghij") == "abcdefghij"
 
     def test_pad(self):
         pre_processor = PreProcessor.build(
             {"name": "left-pad-zeroes", "parameters": {"width": 10}}
         )
-        assert pre_processor.transform("abc") == "0000000abc"
+        assert pre_processor.apply("abc") == "0000000abc"
 
 
 class TestMap(TestCase):
@@ -88,13 +88,13 @@ class TestMap(TestCase):
             ValueError,
             match="value 'an input' does not map to any values in \\['A', 'B'\\]",
         ):
-            pre_processor.transform("an input")
+            pre_processor.apply("an input")
 
     def test_known_input(self):
         pre_processor = PreProcessor.build(
             {"name": "map", "parameters": {"values": {"A": "1", "B": "2"}}}
         )
-        assert pre_processor.transform("A") == "1"
+        assert pre_processor.apply("A") == "1"
 
 
 class TestReplace(TestCase):
@@ -102,23 +102,23 @@ class TestReplace(TestCase):
         pre_processor = PreProcessor.build(
             {"name": "replace", "parameters": {"pattern": "bbb", "replacement": "BBB"}}
         )
-        assert pre_processor.transform("an input") == "an input"
+        assert pre_processor.apply("an input") == "an input"
 
     def test_success(self):
         pre_processor = PreProcessor.build(
             {"name": "replace", "parameters": {"pattern": "bbb", "replacement": "BBB"}}
         )
-        assert pre_processor.transform("aaabbbccc") == "aaaBBBccc"
+        assert pre_processor.apply("aaabbbccc") == "aaaBBBccc"
 
 
 class TestStripWhitespaces(TestCase):
     def test_do_nothing(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
-        assert pre_processor.transform("an input") == "an input"
+        assert pre_processor.apply("an input") == "an input"
 
     def test_success(self):
         pre_processor = PreProcessor.build({"name": "strip-whitespaces"})
-        assert pre_processor.transform("    an input     ") == "an input"
+        assert pre_processor.apply("    an input     ") == "an input"
 
 
 class TestLeftStrip(TestCase):
@@ -126,13 +126,13 @@ class TestLeftStrip(TestCase):
         pre_processor = PreProcessor.build(
             {"name": "left-strip", "parameters": {"characters": "0"}}
         )
-        assert pre_processor.transform("12345") == "12345"
+        assert pre_processor.apply("12345") == "12345"
 
     def test_success(self):
         pre_processor = PreProcessor.build(
             {"name": "left-strip", "parameters": {"characters": "0"}}
         )
-        assert pre_processor.transform("0000012345") == "12345"
+        assert pre_processor.apply("0000012345") == "12345"
 
 
 class TestRegexExtract(TestCase):
@@ -153,7 +153,7 @@ class TestRegexExtract(TestCase):
             }
         )
         with pytest.raises(ValueError) as error:
-            pre_processor.transform("an input")
+            pre_processor.apply("an input")
 
         assert (
             error.value.args[0]
@@ -167,7 +167,7 @@ class TestRegexExtract(TestCase):
                 "parameters": {"pattern": "^xxx(?P<value>\\d{13})xxx$"},
             }
         )
-        pre_processor.transform("xxx9780201379624xxx") == "9780201379624"
+        pre_processor.apply("xxx9780201379624xxx") == "9780201379624"
 
 
 class TestRegister(TestCase):
@@ -176,7 +176,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "yes"
 
-        def transform(self, value):
+        def apply(self, value):
             return f"YES {value}"
 
     def test_register(self):
