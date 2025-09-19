@@ -1,5 +1,43 @@
 # Changelog
 
+## [1.0.0](https://github.com/ZeroGachis/magicparse/compare/0.16.1...1.0.0) (2025-09-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* Add breaking changes
+
+### Features
+
+* Add coalesce computed field ([424d888](https://github.com/ZeroGachis/magicparse/commit/424d888189c406f316558b9af0216c24bb180a2c))
+* Add error handling in Transformer ([bd5a0f9](https://github.com/ZeroGachis/magicparse/commit/bd5a0f99419811926a022c83969dbf998e54d044))
+* add not-null-or-empty validator ([4d5ce0d](https://github.com/ZeroGachis/magicparse/commit/4d5ce0d9e8160eeeac56ef4709a4ae6227bdda8e))
+* field type can be describe with complexe structure ([6b09fe7](https://github.com/ZeroGachis/magicparse/commit/6b09fe71f4ac2b2fa5a8ebce47da953287de850b))
+* Implement nullable type ([39e85c5](https://github.com/ZeroGachis/magicparse/commit/39e85c5fd82c54834798ac06302452de224aed6b))
+* Return type row to know if row is success, skip or in error ([773d7e5](https://github.com/ZeroGachis/magicparse/commit/773d7e5e4572ebc958fc8865d1b6e431325b7f18))
+
+
+### Bug Fixes
+
+* ComputedField can have access to previous computed field values ([436ca68](https://github.com/ZeroGachis/magicparse/commit/436ca68c2e361c62ce78408b9b69030c65bd7e2c))
+
+
+### Documentation
+
+* Add breaking changes ([0676ff6](https://github.com/ZeroGachis/magicparse/commit/0676ff617660744f26145d55a49ce9385ad6ee35))
+
+
+### Miscellaneous Chores
+
+* Remove missing step for mise test task ([1a7b94e](https://github.com/ZeroGachis/magicparse/commit/1a7b94e741d235e991757cea57552f0d18ed527e))
+* Update README to match with current lib state ([afa9471](https://github.com/ZeroGachis/magicparse/commit/afa9471c87ea7596887fd5f6df37dd72379de1db))
+* Use pytest to assert exception ([79ebf31](https://github.com/ZeroGachis/magicparse/commit/79ebf3104be2d31f3087bc494da237b8478d12c7))
+
+
+### Code Refactoring
+
+* Move out of transformer skiping logic ([54a8dfc](https://github.com/ZeroGachis/magicparse/commit/54a8dfcf3dc8504539c86e7d148417776c024c33))
+
 ## [0.16.1](https://github.com/ZeroGachis/magicparse/compare/0.16.0...0.16.1) (2025-09-15)
 
 
