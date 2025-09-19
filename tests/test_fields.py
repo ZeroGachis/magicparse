@@ -10,7 +10,7 @@ from magicparse.validators import RegexMatches
 
 
 class DummyField(Field):
-    def _read_raw_value(self, row: str) -> str:
+    def _read_raw_value(self, row: str | dict) -> str:
         return row
 
     def error(self, exception: Exception):

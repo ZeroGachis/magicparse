@@ -473,6 +473,58 @@ class TestComputedFields(TestCase):
             "computed_field": "AB",
         }
 
+    def test_computed_fields_can_be_used_by_next_computed_fields(self):
+        schema = Schema.build(
+            {
+                "file_type": "csv",
+                "delimiter": ";",
+                "fields": [
+                    {"key": "field_1", "type": "int", "column-number": 1},
+                    {"key": "field_2", "type": "int", "column-number": 2},
+                    {"key": "field_3", "type": "int", "column-number": 3},
+                ],
+                "computed-fields": [
+                    {
+                        "key": "multiply_field_result",
+                        "type": "int",
+                        "builder": {
+                            "name": "multiply",
+                            "parameters": {
+                                "x_factor": "field_1",
+                                "y_factor": "field_2",
+                            },
+                        },
+                    },
+                    {
+                        "key": "divide_field_result",
+                        "type": "decimal",
+                        "builder": {
+                            "name": "divide",
+                            "parameters": {
+                                "numerator": "multiply_field_result",
+                                "denominator": "field_3",
+                            },
+                        },
+                    }
+                ],
+            }
+        )
+
+        rows = list(schema.stream_parse(b"3;4;2"))
+
+        assert rows == [
+            RowParsed(
+                row_number=1,
+                values={
+                    "field_1": 3,
+                    "field_2": 4,
+                    "field_3": 2,
+                    "multiply_field_result": 12,
+                    "divide_field_result": Decimal("6")
+                }
+            )
+        ]
+
 
 class TestHandleTypeError(TestCase):
     def test_default_behavior_raise(self):
