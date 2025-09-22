@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import Any
 
 from .builders import Builder
 from .type_converters import TypeConverter
@@ -10,7 +10,7 @@ from .transform import Ok, OnError, Result, SkipRow
 
 
 class Field(ABC):
-    def __init__(self, key: str, options: dict) -> None:
+    def __init__(self, key: str, options: dict[str, Any]) -> None:
         self.key = key
         pre_processors = [PreProcessor.build(item) for item in options.get("pre-processors", [])]
         type_converter = TypeConverter.build(options)
@@ -37,19 +37,19 @@ class Field(ABC):
         return Ok(value=raw_value)
 
     @abstractmethod
-    def _read_raw_value(self, row: List[str] | dict) -> str:
+    def _read_raw_value(self, row: Any) -> str:
         pass
 
-    def parse(self, row: List[str] | dict) -> Result:
+    def parse(self, row: str | list[str] | dict[str, Any]) -> Result:
         raw_value = self._read_raw_value(row)
         return self._process_raw_value(raw_value)
 
     @abstractmethod
-    def error(self, exception: Exception):
+    def error(self, exception: Exception) -> dict[str, Any]:
         pass
 
     @classmethod
-    def build(cls, options: dict) -> "Field":
+    def build(cls, options: dict[str, Any]) -> "Field":
         options = options.copy()
         key = options.pop("key", None)
         if not key:
@@ -68,14 +68,14 @@ class Field(ABC):
 
 
 class CsvField(Field):
-    def __init__(self, key: str, options: dict) -> None:
+    def __init__(self, key: str, options: dict[str, Any]) -> None:
         super().__init__(key, options)
-        self.column_number = options["column-number"]
+        self.column_number = int(options["column-number"])
 
-    def _read_raw_value(self, row: List[str] | dict) -> str:
+    def _read_raw_value(self, row: list[str]) -> str:
         return row[self.column_number - 1]
 
-    def error(self, exception: Exception) -> dict:
+    def error(self, exception: Exception) -> dict[str, Any]:
         return {
             "column-number": self.column_number,
             "field-key": self.key,
@@ -84,16 +84,16 @@ class CsvField(Field):
 
 
 class ColumnarField(Field):
-    def __init__(self, key: str, options: dict) -> None:
+    def __init__(self, key: str, options: dict[str, Any]) -> None:
         super().__init__(key, options)
-        self.column_start = options["column-start"]
-        self.column_length = options["column-length"]
+        self.column_start = int(options["column-start"])
+        self.column_length = int(options["column-length"])
         self.column_end = self.column_start + self.column_length
 
-    def _read_raw_value(self, row: str | dict) -> str:
+    def _read_raw_value(self, row: str) -> str:
         return row[self.column_start : self.column_end]
 
-    def error(self, exception: Exception) -> dict:
+    def error(self, exception: Exception) -> dict[str, Any]:
         return {
             "column-start": self.column_start,
             "column-length": self.column_length,
@@ -103,21 +103,21 @@ class ColumnarField(Field):
 
 
 class ComputedField(Field):
-    def __init__(self, key: str, options: dict) -> None:
+    def __init__(self, key: str, options: dict[str, Any]) -> None:
         super().__init__(key, options)
         self.builder = Builder.build(options["builder"])
 
-    def _read_raw_value(self, row: List[str] | dict) -> str:
+    def _read_raw_value(self, row: dict[str, Any]) -> str:
         return self.builder.apply(row)
 
-    def error(self, exception: Exception) -> dict:
+    def error(self, exception: Exception) -> dict[str, Any]:
         return {
             "field-key": self.key,
             "error": exception.args[0],
         }
 
     @classmethod
-    def build(cls, options: dict) -> "ComputedField":
+    def build(cls, options: dict[str, Any]) -> "ComputedField":
         key = options.pop("key", None)
         if not key:
             raise ValueError("key is required in computed field definition")

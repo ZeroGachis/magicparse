@@ -1,9 +1,11 @@
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from unittest import TestCase
 
 from magicparse import Builder
+from magicparse.transform import OnError
 
 
 class TestBuild(TestCase):
@@ -12,11 +14,11 @@ class TestBuild(TestCase):
         def key() -> str:
             return "without-param"
 
-        def apply(self, value):
+        def apply(self, value: Any):
             pass
 
     class WithParamBuilder(Builder):
-        def __init__(self, on_error: str, setting: str) -> None:
+        def __init__(self, on_error: OnError, setting: str) -> None:
             super().__init__(on_error)
             self.setting = setting
 
@@ -24,7 +26,7 @@ class TestBuild(TestCase):
         def key() -> str:
             return "with-param"
 
-        def apply(self, value):
+        def apply(self, value: Any):
             pass
 
     def test_without_parameter(self):

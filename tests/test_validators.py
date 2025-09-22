@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 from magicparse.validators import GreaterThan, NotNullOrEmpty, RegexMatches, Validator
 import pytest
 import re
@@ -70,7 +71,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "is-the-answer"
 
-        def apply(self, value):
+        def apply(self, value: Any):
             if value == 42:
                 return value
             raise ValueError(f"{value} is not the answer !")

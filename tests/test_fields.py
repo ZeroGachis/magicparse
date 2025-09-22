@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 
 import pytest
 from magicparse.transform import Ok
@@ -10,10 +11,10 @@ from magicparse.validators import RegexMatches
 
 
 class DummyField(Field):
-    def _read_raw_value(self, row: str | dict) -> str:
+    def _read_raw_value(self, row: Any) -> str:
         return row
 
-    def error(self, exception: Exception):
+    def error(self, exception: Exception) -> dict[str, Any]:
         return {}
 
 

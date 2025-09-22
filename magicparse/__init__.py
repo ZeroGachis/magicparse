@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from io import BytesIO
 
 from .schema import (
@@ -15,7 +16,7 @@ from .builders import (
 )
 from .transform import Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
-from typing import Any, Dict, Iterable, List, Union
+from typing import Any, Iterable
 from .validators import Validator, builtins as builtins_validators
 
 
@@ -33,23 +34,21 @@ __all__ = [
 ]
 
 
-def parse(data: Union[bytes, BytesIO], schema_options: Dict[str, Any]) -> List[RowParsed | RowSkipped | RowFailed]:
+def parse(data: bytes | BytesIO, schema_options: dict[str, Any]) -> list[RowParsed | RowSkipped | RowFailed]:
     schema_definition = Schema.build(schema_options)
     return schema_definition.parse(data)
 
 
-def stream_parse(
-    data: Union[bytes, BytesIO], schema_options: Dict[str, Any]
-) -> Iterable[RowParsed | RowSkipped | RowFailed]:
+def stream_parse(data: bytes | BytesIO, schema_options: dict[str, Any]) -> Iterable[RowParsed | RowSkipped | RowFailed]:
     schema_definition = Schema.build(schema_options)
     return schema_definition.stream_parse(data)
 
 
-Registrable = Union[Schema, Transform]
+Registrable = type[Schema] | type[Transform]
 
 
-def register(items: Union[Registrable, List[Registrable]]) -> None:
-    if not isinstance(items, list):
+def register(items: Registrable | Sequence[Registrable]) -> None:
+    if not isinstance(items, Sequence):
         items = [items]
 
     for item in items:

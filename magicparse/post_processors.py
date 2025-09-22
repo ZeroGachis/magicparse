@@ -1,11 +1,13 @@
 from .transform import Transform, OnError
 from decimal import Decimal
-from typing import TypeVar
+from typing import Any
 
 
 class PostProcessor(Transform):
+    registry = dict[str, type["PostProcessor"]]()
+
     @classmethod
-    def build(cls, options: dict) -> "PostProcessor":
+    def build(cls, options: dict[str, Any]) -> "PostProcessor":
         try:
             name = options["name"]
         except:
@@ -23,9 +25,10 @@ class PostProcessor(Transform):
             return post_processor(on_error=on_error)
 
 
-class Divide(PostProcessor):
-    Number = TypeVar("Number", int, float, Decimal)
+type Number = int | float | Decimal
 
+
+class Divide(PostProcessor):
     def __init__(self, on_error: OnError, denominator: int) -> None:
         super().__init__(on_error)
         if denominator <= 0:
@@ -42,8 +45,6 @@ class Divide(PostProcessor):
 
 
 class Round(PostProcessor):
-    Number = TypeVar("Number", int, float, Decimal)
-
     def __init__(self, on_error: OnError, precision: int) -> None:
         super().__init__(on_error)
         if precision < 0:

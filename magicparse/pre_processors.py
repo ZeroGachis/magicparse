@@ -1,10 +1,13 @@
 import re
+from typing import Any
 from .transform import Transform, OnError
 
 
 class PreProcessor(Transform):
+    registry = dict[str, type["PreProcessor"]]()
+
     @classmethod
-    def build(cls, options: dict) -> "PreProcessor":
+    def build(cls, options: dict[str, Any]) -> "PreProcessor":
         try:
             name = options["name"]
         except:
@@ -36,7 +39,7 @@ class LeftPadZeroes(PreProcessor):
 
 
 class Map(PreProcessor):
-    def __init__(self, on_error: OnError, values: dict) -> None:
+    def __init__(self, on_error: OnError, values: dict[str, Any]) -> None:
         super().__init__(on_error)
         self.values = values
         self._keys = ", ".join(f"'{key}'" for key in self.values.keys())
@@ -91,11 +94,11 @@ class LeftStrip(PreProcessor):
 class RegexExtract(PreProcessor):
     def __init__(self, on_error: OnError, pattern: str) -> None:
         super().__init__(on_error)
-        pattern = re.compile(pattern)
-        if "value" not in pattern.groupindex:
+        _pattern = re.compile(pattern)
+        if "value" not in _pattern.groupindex:
             raise ValueError("regex-extract's pattern must contain a group named 'value'")
 
-        self.pattern = pattern
+        self.pattern = _pattern
 
     def apply(self, value: str) -> str:
         match = re.match(self.pattern, value)

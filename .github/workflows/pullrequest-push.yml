@@ -50,6 +50,7 @@ jobs:
         poetry install --no-interaction --no-ansi --no-root --only dev
         ruff check --diff ./
         ruff format --check --diff ./
+        pyright
     secrets: inherit
 
   unit-tests:

@@ -1,7 +1,7 @@
-from abc import ABC, abstractclassmethod, abstractmethod, abstractstaticmethod
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
-from typing import Any
+from enum import StrEnum
+from typing import Any, Self
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,30 +17,31 @@ class SkipRow:
 type Result = Ok | SkipRow
 
 
-class OnError(Enum):
+class OnError(StrEnum):
     RAISE = "raise"
     SKIP_ROW = "skip-row"
 
 
 class Transform(ABC):
+    registry: dict[str, type[Self]]
+
     def __init__(self, on_error: OnError) -> None:
         self.on_error = on_error
 
-    @abstractclassmethod
-    def build(cls, options: dict) -> "Transform":
+    @classmethod
+    @abstractmethod
+    def build(cls, options: dict[str, Any]) -> "Transform":
         pass
 
     @abstractmethod
     def apply(self, value: Any) -> Any:
         pass
 
-    @abstractstaticmethod
+    @staticmethod
+    @abstractmethod
     def key() -> str:
         pass
 
     @classmethod
-    def register(cls, transform: "Transform") -> None:
-        if not hasattr(cls, "registry"):
-            cls.registry = {}
-
+    def register(cls, transform: type[Self]) -> None:
         cls.registry[transform.key()] = transform

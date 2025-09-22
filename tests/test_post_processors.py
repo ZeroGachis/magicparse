@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Any
 from magicparse.post_processors import Divide, PostProcessor
 import pytest
 from unittest import TestCase
@@ -55,7 +56,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "no-thanks"
 
-        def apply(self, value):
+        def apply(self, value: Any):
             return f"{value} ? No thanks"
 
     def test_register(self):
