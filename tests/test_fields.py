@@ -23,10 +23,8 @@ def test_chain_transformations():
         {
             "type": "str",
             "pre-processors": [{"name": "strip-whitespaces"}],
-            "validators": [
-                {"name": "regex-matches", "parameters": {"pattern": "^mac .*$"}}
-            ],
-        }
+            "validators": [{"name": "regex-matches", "parameters": {"pattern": "^mac .*$"}}],
+        },
     )
     assert len(field.transforms) == 3
     assert isinstance(field.transforms[0], StripWhitespaces)
@@ -51,7 +49,7 @@ def test_chain_transformations_with_post_processors():
                 }
             ],
             "post-processors": [{"name": "divide", "parameters": {"denominator": 100}}],
-        }
+        },
     )
     assert len(field.transforms) == 3
     assert isinstance(field.transforms[0], Replace)
@@ -74,9 +72,7 @@ def test_csv_error_format():
 
 
 def test_columnar_error_format():
-    field = ColumnarField(
-        "ratio", {"type": "decimal", "column-start": 0, "column-length": 5}
-    )
+    field = ColumnarField("ratio", {"type": "decimal", "column-start": 0, "column-length": 5})
 
     with pytest.raises(ValueError) as error:
         field.parse("hello")
@@ -102,7 +98,7 @@ def test_optional_field():
                 }
             ],
             "post-processors": [{"name": "divide", "parameters": {"denominator": 100}}],
-        }
+        },
     )
     assert field.parse("XXX150") == Ok(value=Decimal("1.50"))
     assert field.parse("") == Ok(value=None)
@@ -114,7 +110,7 @@ def test_required_field():
         {
             "type": "decimal",
             "optional": False,
-        }
+        },
     )
     assert field.parse("1.5") == Ok(value=Decimal("1.50"))
 
@@ -124,25 +120,19 @@ def test_require_field_with_empty_value():
         "pepito",
         {
             "type": "decimal",
-        }
+        },
     )
-    with pytest.raises(
-        ValueError, match="pepito field is required but the value was empty"
-    ):
+    with pytest.raises(ValueError, match="pepito field is required but the value was empty"):
         field.parse("")
 
 
 def test_field_without_key():
-    with pytest.raises(
-        ValueError, match="key is required in field definition"
-    ):
+    with pytest.raises(ValueError, match="key is required in field definition"):
         Field.build({"type": "decimal"})
 
 
 def test_field_without_position_or_column_definition():
-    with pytest.raises(
-        ValueError, match="missing field position for field: 'field_key'"
-    ):
+    with pytest.raises(ValueError, match="missing field position for field: 'field_key'"):
         Field.build({"key": "field_key", "type": "decimal"})
 
 

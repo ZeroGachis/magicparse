@@ -36,9 +36,7 @@ class TestBuild(TestCase):
     def test_with_parameter(self):
         Builder.register(self.WithParamBuilder)
 
-        builder = Builder.build(
-            {"name": "with-param", "parameters": {"setting": "value"}}
-        )
+        builder = Builder.build({"name": "with-param", "parameters": {"setting": "value"}})
         assert isinstance(builder, self.WithParamBuilder)
         assert builder.setting == "value"
 
@@ -73,34 +71,26 @@ class TestConcat(TestCase):
             Builder.build({"name": "concat", "parameters": {"fields": ["code"]}})
 
     def test_field_not_present(self):
-        builder = Builder.build(
-            {"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}}
-        )
+        builder = Builder.build({"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}})
         with pytest.raises(KeyError):
             builder.apply({})
 
     def test_concat_two_fields(self):
-        builder = Builder.build(
-            {"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}}
-        )
+        builder = Builder.build({"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}})
 
         result = builder.apply({"code_1": "X", "code_2": "Y"})
 
         assert result == "XY"
 
     def test_concat_three_fields(self):
-        builder = Builder.build(
-            {"name": "concat", "parameters": {"fields": ["code_1", "code_2", "code_3"]}}
-        )
+        builder = Builder.build({"name": "concat", "parameters": {"fields": ["code_1", "code_2", "code_3"]}})
 
         result = builder.apply({"code_1": "X", "code_2": "Y", "code_3": "Z"})
 
         assert result == "XYZ"
 
     def test_concat_integer(self):
-        builder = Builder.build(
-            {"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}}
-        )
+        builder = Builder.build({"name": "concat", "parameters": {"fields": ["code_1", "code_2"]}})
 
         with pytest.raises(TypeError):
             builder.apply({"code_1": 1, "code_2": 2})
@@ -246,45 +236,26 @@ class TestCoalesce(TestCase):
             Builder.build({"name": "coalesce", "parameters": ""})
 
     def test_fields_params_empty(self):
-        with pytest.raises(
-            ValueError,
-            match="parameters should defined fields to coalesce"
-        ):
+        with pytest.raises(ValueError, match="parameters should defined fields to coalesce"):
             Builder.build({"name": "coalesce", "parameters": {"fields": ""}})
 
     def test_fields_params_not_a_list_of_str(self):
-        with pytest.raises(
-            ValueError,
-            match="parameters should have two fields at least"
-        ):
+        with pytest.raises(ValueError, match="parameters should have two fields at least"):
             Builder.build({"name": "coalesce", "parameters": {"fields": "xxx"}})
 
     def test_fields_params_has_less_than_two_fields(self):
-        with pytest.raises(
-            ValueError,
-            match="parameters should have two fields at least"
-        ):
+        with pytest.raises(ValueError, match="parameters should have two fields at least"):
             Builder.build({"name": "coalesce", "parameters": {"fields": ["field"]}})
 
     def test_return_first_non_empty_value(self):
-        coalesce = Builder.build(
-            {
-                "name": "coalesce",
-                "parameters": {"fields": ["field1", "field2"]}
-            }
-        )
+        coalesce = Builder.build({"name": "coalesce", "parameters": {"fields": ["field1", "field2"]}})
 
         result = coalesce.apply({"field1": "", "field2": "value"})
 
         assert result == "value"
 
     def test_return_none_if_all_values_are_empty(self):
-        coalesce = Builder.build(
-            {
-                "name": "coalesce",
-                "parameters": {"fields": ["field1", "field2"]}
-            }
-        )
+        coalesce = Builder.build({"name": "coalesce", "parameters": {"fields": ["field1", "field2"]}})
 
         result = coalesce.apply({"field1": "", "field2": ""})
 

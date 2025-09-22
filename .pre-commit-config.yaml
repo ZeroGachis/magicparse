@@ -1,14 +1,15 @@
+fail_fast: true
 repos:
-  - repo: https://github.com/psf/black
-    rev: 22.6.0
+  - repo: local
     hooks:
-      - id: black
-        language_version: python3.9
-      - id: black
-        alias: black-on-ci
-        args: ["--check --diff"]
-        stages: [manual]
-  -   repo: https://github.com/pycqa/flake8
-      rev: 5.0.3
-      hooks:
-      -   id: flake8
+      - id: ruff-check
+        name: Ruff check
+        entry: poetry run ruff check
+        args: [--fix]
+        language: system
+        types: [file, python]
+      - id: ruff-format
+        name: Ruff format
+        entry: poetry run ruff format
+        language: system
+        types: [file, python]

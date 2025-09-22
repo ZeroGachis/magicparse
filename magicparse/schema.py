@@ -34,9 +34,7 @@ class Schema(ABC):
 
     def __init__(self, options: Dict[str, Any]) -> None:
         self.fields = [Field.build(item) for item in options["fields"]]
-        self.computed_fields = [
-            ComputedField.build(item) for item in options.get("computed-fields", [])
-        ]
+        self.computed_fields = [ComputedField.build(item) for item in options.get("computed-fields", [])]
 
         self.has_header = options.get("has_header", False)
         self.encoding = options.get("encoding", "utf-8")
@@ -65,14 +63,10 @@ class Schema(ABC):
 
         cls.registry[schema.key()] = schema
 
-    def parse(
-        self, data: Union[bytes, BytesIO]
-    ) -> List[RowParsed] | List[RowSkipped] | List[RowFailed]:
+    def parse(self, data: Union[bytes, BytesIO]) -> List[RowParsed] | List[RowSkipped] | List[RowFailed]:
         return list(self.stream_parse(data))
 
-    def stream_parse(
-        self, data: Union[bytes, BytesIO]
-    ) -> Iterable[RowParsed | RowSkipped | RowFailed]:
+    def stream_parse(self, data: Union[bytes, BytesIO]) -> Iterable[RowParsed | RowSkipped | RowFailed]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -95,9 +89,7 @@ class Schema(ABC):
                 yield fields
                 continue
 
-            computed_fields = self.process_fields(
-                self.computed_fields, fields.values, row_number
-            )
+            computed_fields = self.process_fields(self.computed_fields, fields.values, row_number)
             if not isinstance(computed_fields, RowParsed):
                 yield computed_fields
                 continue
@@ -126,11 +118,7 @@ class Schema(ABC):
             item[field.key] = parsed_value.value
 
         if errors:
-            return (
-                RowSkipped(row_number, errors)
-                if skip_row
-                else RowFailed(row_number, errors)
-            )
+            return RowSkipped(row_number, errors) if skip_row else RowFailed(row_number, errors)
 
         return RowParsed(row_number, item)
 

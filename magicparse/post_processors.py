@@ -29,10 +29,7 @@ class Divide(PostProcessor):
     def __init__(self, on_error: OnError, denominator: int) -> None:
         super().__init__(on_error)
         if denominator <= 0:
-            raise ValueError(
-                "post-processor 'divide': "
-                "'denominator' parameter must be a positive integer"
-            )
+            raise ValueError("post-processor 'divide': 'denominator' parameter must be a positive integer")
 
         self.denominator = denominator
 
@@ -50,10 +47,7 @@ class Round(PostProcessor):
     def __init__(self, on_error: OnError, precision: int) -> None:
         super().__init__(on_error)
         if precision < 0:
-            raise ValueError(
-                "post-processor 'round': "
-                "'precision' parameter must be a positive or zero integer"
-            )
+            raise ValueError("post-processor 'round': 'precision' parameter must be a positive or zero integer")
 
         self.precision = precision
 

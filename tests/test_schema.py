@@ -4,9 +4,7 @@ from typing import Any
 from magicparse import Schema
 from magicparse.post_processors import PostProcessor
 from magicparse.pre_processors import PreProcessor
-from magicparse.schema import (
-    ColumnarSchema, CsvSchema, RowParsed, RowFailed, RowSkipped
-)
+from magicparse.schema import ColumnarSchema, CsvSchema, RowParsed, RowFailed, RowSkipped
 from magicparse.fields import ColumnarField, CsvField
 import pytest
 from unittest import TestCase
@@ -104,11 +102,16 @@ class TestCsvParse(TestCase):
         )
         rows = schema.parse(b"a")
         assert rows == [
-            RowFailed(row_number=1, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }])
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            )
         ]
 
     def test_errors_do_not_halt_parsing(self):
@@ -121,11 +124,16 @@ class TestCsvParse(TestCase):
         rows = schema.parse(b"1\na\n2")
         assert rows == [
             RowParsed(row_number=1, values={"age": 1}),
-            RowFailed(row_number=2, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }]),
+            RowFailed(
+                row_number=2,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            ),
             RowParsed(row_number=3, values={"age": 2}),
         ]
 
@@ -188,39 +196,45 @@ class TestColumnarParse(TestCase):
         schema = Schema.build(
             {
                 "file_type": "columnar",
-                "fields": [
-                    {"key": "age", "type": "int", "column-start": 0, "column-length": 1}
-                ],
+                "fields": [{"key": "age", "type": "int", "column-start": 0, "column-length": 1}],
             }
         )
         rows = schema.parse(b"a")
         assert rows == [
-            RowFailed(row_number=1, errors=[{
-                "column-start": 0,
-                "column-length": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }])
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-start": 0,
+                        "column-length": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            )
         ]
 
     def test_errors_do_not_halt_parsing(self):
         schema = Schema.build(
             {
                 "file_type": "columnar",
-                "fields": [
-                    {"key": "age", "type": "int", "column-start": 0, "column-length": 1}
-                ],
+                "fields": [{"key": "age", "type": "int", "column-start": 0, "column-length": 1}],
             }
         )
         rows = schema.parse(b"1\na\n2")
         assert rows == [
             RowParsed(row_number=1, values={"age": 1}),
-            RowFailed(row_number=2, errors=[{
-                "column-start": 0,
-                "column-length": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }]),
+            RowFailed(
+                row_number=2,
+                errors=[
+                    {
+                        "column-start": 0,
+                        "column-length": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            ),
             RowParsed(row_number=3, values={"age": 2}),
         ]
 
@@ -252,7 +266,7 @@ class TestColumnarParse(TestCase):
                 "delimiter": ";",
                 "fields": [
                     {"key": "age", "type": "int", "column-number": 1},
-                    {"key": "age2", "type": "int", "column-number": 2}
+                    {"key": "age2", "type": "int", "column-number": 2},
                 ],
             }
         )
@@ -260,18 +274,21 @@ class TestColumnarParse(TestCase):
         rows = schema.parse(b"a;a")
 
         assert rows == [
-            RowFailed(row_number=1, errors=[
-                {
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "value 'a' is not a valid integer",
-                },
-                {
-                    "column-number": 2,
-                    "field-key": "age2",
-                    "error": "value 'a' is not a valid integer",
-                }
-            ])
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    },
+                    {
+                        "column-number": 2,
+                        "field-key": "age2",
+                        "error": "value 'a' is not a valid integer",
+                    },
+                ],
+            )
         ]
 
     def test_skip_is_prioritized_over_errors(self):
@@ -285,14 +302,10 @@ class TestColumnarParse(TestCase):
                         "type": "int",
                         "column-number": 1,
                         "validators": [
-                            {
-                                "name": "greater-than",
-                                "parameters": {"threshold": 0},
-                                "on-error": "skip-row"
-                            }
+                            {"name": "greater-than", "parameters": {"threshold": 0}, "on-error": "skip-row"}
                         ],
                     },
-                    {"key": "age2", "type": "int", "column-number": 2}
+                    {"key": "age2", "type": "int", "column-number": 2},
                 ],
             }
         )
@@ -300,18 +313,21 @@ class TestColumnarParse(TestCase):
         rows = schema.parse(b"-1;a")
 
         assert rows == [
-            RowSkipped(row_number=1, errors=[
-                {
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "value must be greater than 0",
-                },
-                {
-                    "column-number": 2,
-                    "field-key": "age2",
-                    "error": "value 'a' is not a valid integer",
-                }
-            ])
+            RowSkipped(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value must be greater than 0",
+                    },
+                    {
+                        "column-number": 2,
+                        "field-key": "age2",
+                        "error": "value 'a' is not a valid integer",
+                    },
+                ],
+            )
         ]
 
 
@@ -325,9 +341,7 @@ class TestQuotingSetting(TestCase):
             }
         )
         rows = schema.parse(b"column_1\n6.66")
-        assert rows == [
-            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
-        ]
+        assert rows == [RowParsed(row_number=2, values={"column_1": Decimal("6.66")})]
 
     def test_single_quote(self):
         schema = Schema.build(
@@ -339,9 +353,7 @@ class TestQuotingSetting(TestCase):
             }
         )
         rows = schema.parse(b"column_1\n'6.66'")
-        assert rows == [
-            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
-        ]
+        assert rows == [RowParsed(row_number=2, values={"column_1": Decimal("6.66")})]
 
     def test_double_quote(self):
         schema = Schema.build(
@@ -353,9 +365,7 @@ class TestQuotingSetting(TestCase):
             }
         )
         rows = schema.parse(b'column_1\n"6.66"')
-        assert rows == [
-            RowParsed(row_number=2, values={"column_1": Decimal("6.66")})
-        ]
+        assert rows == [RowParsed(row_number=2, values={"column_1": Decimal("6.66")})]
 
     def test_asymetrical_quote(self):
         schema = Schema.build(
@@ -366,9 +376,7 @@ class TestQuotingSetting(TestCase):
             }
         )
         rows = schema.parse(b'column_1\n"test ""quoting""')
-        assert rows == [
-            RowParsed(row_number=2, values={"column_1": '"test ""quoting""'})
-        ]
+        assert rows == [RowParsed(row_number=2, values={"column_1": '"test ""quoting""'})]
 
 
 class TestRegister(TestCase):
@@ -412,7 +420,8 @@ class TestSteamParse(TestCase):
                         "field-key": "age",
                         "error": "value 'a' is not a valid integer",
                     }
-                ]),
+                ],
+            ),
             RowParsed(row_number=3, values={"age": 2}),
         ]
 
@@ -507,7 +516,7 @@ class TestComputedFields(TestCase):
                                 "denominator": "field_3",
                             },
                         },
-                    }
+                    },
                 ],
             }
         )
@@ -522,8 +531,8 @@ class TestComputedFields(TestCase):
                     "field_2": 4,
                     "field_3": 2,
                     "multiply_field_result": 12,
-                    "divide_field_result": Decimal("6")
-                }
+                    "divide_field_result": Decimal("6"),
+                },
             )
         ]
 
@@ -533,18 +542,21 @@ class TestHandleTypeError(TestCase):
         schema = Schema.build(
             {
                 "file_type": "csv",
-                "fields": [
-                    {"key": "age", "type": "int", "column-number": 1}
-                ],
+                "fields": [{"key": "age", "type": "int", "column-number": 1}],
             }
         )
         rows = list(schema.stream_parse(b"a"))
         assert rows == [
-            RowFailed(row_number=1, errors=[{
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "value 'a' is not a valid integer",
-                }])
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            )
         ]
 
     def test_skip_row(self):
@@ -561,12 +573,18 @@ class TestHandleTypeError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"a"))
-        assert rows == [RowSkipped(row_number=1, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "value 'a' is not a valid integer",
-            }
-        ])]
+        assert rows == [
+            RowSkipped(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value 'a' is not a valid integer",
+                    }
+                ],
+            )
+        ]
 
 
 class TestHandleValidationError(TestCase):
@@ -593,12 +611,16 @@ class TestHandleValidationError(TestCase):
         rows = list(schema.stream_parse(b"-1"))
 
         assert rows == [
-            RowFailed(row_number=1, errors=[{
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "value must be greater than 0",
-                }
-            ])
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value must be greater than 0",
+                    }
+                ],
+            )
         ]
 
     def test_skip_row(self):
@@ -622,12 +644,18 @@ class TestHandleValidationError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"-1"))
-        assert rows == [RowSkipped(row_number=1, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "value must be greater than 0",
-            }
-        ])]
+        assert rows == [
+            RowSkipped(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "value must be greater than 0",
+                    }
+                ],
+            )
+        ]
 
 
 class TestHandlePostProcessorError(TestCase):
@@ -659,12 +687,18 @@ class TestHandlePostProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [RowFailed(row_number=1, errors=[{
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "test error",
-                }
-            ])]
+        assert rows == [
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "test error",
+                    }
+                ],
+            )
+        ]
 
     def test_skip_row(self):
         PostProcessor.register(self.FailPostProcessor)
@@ -687,12 +721,18 @@ class TestHandlePostProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [RowSkipped(row_number=1, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "test error",
-            }
-        ])]
+        assert rows == [
+            RowSkipped(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "test error",
+                    }
+                ],
+            )
+        ]
 
 
 class TestHandlePreProcessorError(TestCase):
@@ -724,12 +764,18 @@ class TestHandlePreProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [RowFailed(row_number=1, errors=[{
-                    "column-number": 1,
-                    "field-key": "age",
-                    "error": "test error",
-                }
-            ])]
+        assert rows == [
+            RowFailed(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "test error",
+                    }
+                ],
+            )
+        ]
 
     def test_skip_row(self):
         PreProcessor.register(self.FailPreProcessor)
@@ -752,9 +798,15 @@ class TestHandlePreProcessorError(TestCase):
             }
         )
         rows = list(schema.stream_parse(b"1"))
-        assert rows == [RowSkipped(row_number=1, errors=[{
-                "column-number": 1,
-                "field-key": "age",
-                "error": "test error",
-            }
-        ])]
+        assert rows == [
+            RowSkipped(
+                row_number=1,
+                errors=[
+                    {
+                        "column-number": 1,
+                        "field-key": "age",
+                        "error": "test error",
+                    }
+                ],
+            )
+        ]

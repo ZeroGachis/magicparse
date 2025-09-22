@@ -35,8 +35,7 @@ class Concat(Builder):
             or len(fields) < 2
         ):
             raise ValueError(
-                "composite-processor 'concat': "
-                "'fields' parameter must be a list[str] with at least two elements"
+                "composite-processor 'concat': 'fields' parameter must be a list[str] with at least two elements"
             )
 
         self.fields = fields
@@ -53,13 +52,9 @@ class Divide(Builder):
     def __init__(self, on_error: OnError, numerator: str, denominator: str) -> None:
         super().__init__(on_error)
         if not numerator or not isinstance(numerator, str):
-            raise ValueError(
-                "builder 'divide': " "'numerator' parameter must be a non null str"
-            )
+            raise ValueError("builder 'divide': 'numerator' parameter must be a non null str")
         if not denominator or not isinstance(denominator, str):
-            raise ValueError(
-                "builder 'divide': " "'denominator' parameter must be a non null str"
-            )
+            raise ValueError("builder 'divide': 'denominator' parameter must be a non null str")
         self.numerator = numerator
         self.denominator = denominator
 
@@ -75,13 +70,9 @@ class Multiply(Builder):
     def __init__(self, on_error: OnError, x_factor: str, y_factor: str) -> None:
         super().__init__(on_error)
         if not x_factor or not isinstance(x_factor, str):
-            raise ValueError(
-                "builder 'multiply': " "'x_factor' parameter must be a non null str"
-            )
+            raise ValueError("builder 'multiply': 'x_factor' parameter must be a non null str")
         if not y_factor or not isinstance(y_factor, str):
-            raise ValueError(
-                "builder 'multiply': " "'y_factor' parameter must be a non null str"
-            )
+            raise ValueError("builder 'multiply': 'y_factor' parameter must be a non null str")
         self.x_factor = x_factor
         self.y_factor = y_factor
 
@@ -98,11 +89,7 @@ class Coalesce(Builder):
         super().__init__(on_error)
         if not fields:
             raise ValueError("parameters should defined fields to coalesce")
-        if (
-            not isinstance(fields, list)
-            or not all(isinstance(field, str) for field in fields)
-            or len(fields) < 2
-        ):
+        if not isinstance(fields, list) or not all(isinstance(field, str) for field in fields) or len(fields) < 2:
             raise ValueError("parameters should have two fields at least")
 
         self.fields = fields

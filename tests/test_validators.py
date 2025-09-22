@@ -18,9 +18,7 @@ class TestBuild(TestCase):
         assert validator.pattern.pattern == "^\\d{13}$"
 
     def test_not_null_or_empty(self):
-        validator = Validator.build(
-            {"name": "not-null-or-empty"}
-        )
+        validator = Validator.build({"name": "not-null-or-empty"})
 
         assert isinstance(validator, NotNullOrEmpty)
 
@@ -62,9 +60,7 @@ class TestRegexMatches(TestCase):
                 "parameters": {"pattern": "^\\d{13}$"},
             }
         )
-        with pytest.raises(
-            ValueError, match=r"string does not match regex '\^\\d\{13\}\$'"
-        ):
+        with pytest.raises(ValueError, match=r"string does not match regex '\^\\d\{13\}\$'"):
             validator.apply("hello")
 
 
@@ -88,33 +84,25 @@ class TestRegister(TestCase):
 
 class TestGreaterThanValidator(TestCase):
     def test_it_successfully_returns_the_value_when_greater_than_threshold(self):
-        validator = Validator.build(
-            {"name": "greater-than", "parameters": {"threshold": 11}}
-        )
+        validator = Validator.build({"name": "greater-than", "parameters": {"threshold": 11}})
 
         assert validator.apply(12) == 12
 
     def test_it_successfully_returns_the_value_when_greater_than_decimal_threshold(
         self,
     ):
-        validator = Validator.build(
-            {"name": "greater-than", "parameters": {"threshold": 11.4}}
-        )
+        validator = Validator.build({"name": "greater-than", "parameters": {"threshold": 11.4}})
 
         assert validator.apply(11.5) == 11.5
 
     def test_it_raises_an_error_when_the_value_is_lower_than_threshold(self):
-        validator = Validator.build(
-            {"name": "greater-than", "parameters": {"threshold": 10}}
-        )
+        validator = Validator.build({"name": "greater-than", "parameters": {"threshold": 10}})
 
         with pytest.raises(ValueError, match="value must be greater than 10"):
             validator.apply(9.9999)
 
     def test_it_raises_an_error_when_the_value_is_equal_to_threshold(self):
-        validator = Validator.build(
-            {"name": "greater-than", "parameters": {"threshold": 10}}
-        )
+        validator = Validator.build({"name": "greater-than", "parameters": {"threshold": 10}})
 
         with pytest.raises(ValueError, match="value must be greater than 10"):
             validator.apply(10)
@@ -122,24 +110,18 @@ class TestGreaterThanValidator(TestCase):
 
 class TestNotNullOrEmptyValidator(TestCase):
     def test_success_returns_the_value(self):
-        validator = Validator.build(
-            {"name": "not-null-or-empty"}
-        )
+        validator = Validator.build({"name": "not-null-or-empty"})
 
         assert validator.apply("hello") == "hello"
 
     def test_raise_when_the_value_is_null(self):
-        validator = Validator.build(
-            {"name": "not-null-or-empty"}
-        )
+        validator = Validator.build({"name": "not-null-or-empty"})
 
         with pytest.raises(ValueError, match="value must not be null or empty"):
             validator.apply(None)
 
     def test_raises_when_the_value_is_empty(self):
-        validator = Validator.build(
-            {"name": "not-null-or-empty"}
-        )
+        validator = Validator.build({"name": "not-null-or-empty"})
 
         with pytest.raises(ValueError, match="value must not be null or empty"):
             validator.apply("")

@@ -12,29 +12,21 @@ from .transform import Ok, OnError, Result, SkipRow
 class Field(ABC):
     def __init__(self, key: str, options: dict) -> None:
         self.key = key
-        pre_processors = [
-            PreProcessor.build(item) for item in options.get("pre-processors", [])
-        ]
+        pre_processors = [PreProcessor.build(item) for item in options.get("pre-processors", [])]
         type_converter = TypeConverter.build(options)
         validators = [Validator.build(item) for item in options.get("validators", [])]
-        post_processors = [
-            PostProcessor.build(item) for item in options.get("post-processors", [])
-        ]
+        post_processors = [PostProcessor.build(item) for item in options.get("post-processors", [])]
 
         self.optional = options.get("optional", False)
 
-        self.transforms = (
-            pre_processors + [type_converter] + validators + post_processors
-        )
+        self.transforms = pre_processors + [type_converter] + validators + post_processors
 
     def _process_raw_value(self, raw_value: str) -> Result:
         if not raw_value:
             if self.optional:
                 return Ok(value=None)
             else:
-                raise ValueError(
-                    f"{self.key} field is required but the value was empty"
-                )
+                raise ValueError(f"{self.key} field is required but the value was empty")
         for transform in self.transforms:
             try:
                 raw_value = transform.apply(raw_value)

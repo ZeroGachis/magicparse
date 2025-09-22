@@ -31,8 +31,8 @@ jobs:
       tailscale_enabled: false
       run_command: |
         poetry install --no-interaction --no-ansi --no-root --only dev
-        poetry run black magicparse/ --check --diff
-        poetry run flake8
+        ruff check --diff ./
+        ruff format --check --diff ./
     secrets: inherit
 
   unit-tests:
