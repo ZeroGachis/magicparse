@@ -29,7 +29,7 @@ class TestBuild(TestCase):
                     "name": "concat",
                     "parameters": {"fields": ["code_1", "code_2"]},
                 },
-            }
+            },
         )
 
         computed = field.parse({"code_1": "01", "code_2": "02"})
@@ -46,7 +46,7 @@ class TestBuild(TestCase):
                     "name": "concat",
                     "parameters": {"fields": ["code_1", "code_2"]},
                 },
-            }
+            },
         )
 
         with pytest.raises(KeyError) as error:

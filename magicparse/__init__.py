@@ -33,9 +33,7 @@ __all__ = [
 ]
 
 
-def parse(
-    data: Union[bytes, BytesIO], schema_options: Dict[str, Any]
-) -> List[RowParsed | RowSkipped | RowFailed]:
+def parse(data: Union[bytes, BytesIO], schema_options: Dict[str, Any]) -> List[RowParsed | RowSkipped | RowFailed]:
     schema_definition = Schema.build(schema_options)
     return schema_definition.parse(data)
 
@@ -68,9 +66,7 @@ def register(items: Union[Registrable, List[Registrable]]) -> None:
         elif issubclass(item, Builder):
             Builder.register(item)
         else:
-            raise ValueError(
-                "transforms must be a subclass of Transform (or a list of it)"
-            )
+            raise ValueError("transforms must be a subclass of Transform (or a list of it)")
 
 
 register(builtins_schemas)

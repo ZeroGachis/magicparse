@@ -45,9 +45,7 @@ class Map(PreProcessor):
         try:
             return self.values[value]
         except:
-            raise ValueError(
-                f"value '{value}' does not map to any values in [{self._keys}]"
-            )
+            raise ValueError(f"value '{value}' does not map to any values in [{self._keys}]")
 
     @staticmethod
     def key() -> str:
@@ -95,18 +93,14 @@ class RegexExtract(PreProcessor):
         super().__init__(on_error)
         pattern = re.compile(pattern)
         if "value" not in pattern.groupindex:
-            raise ValueError(
-                "regex-extract's pattern must contain a group named 'value'"
-            )
+            raise ValueError("regex-extract's pattern must contain a group named 'value'")
 
         self.pattern = pattern
 
     def apply(self, value: str) -> str:
         match = re.match(self.pattern, value)
         if not match:
-            raise ValueError(
-                f"cannot extract value from pattern '{self.pattern.pattern}'"
-            )
+            raise ValueError(f"cannot extract value from pattern '{self.pattern.pattern}'")
 
         return match.group("value")
 

@@ -84,9 +84,7 @@ class TestDecimal(TestCase):
 class TestTime(TestCase):
     def test_transform(self):
         type_converter = TypeConverter.build({"type": "time"})
-        assert type_converter.apply("10:12:03+03:00") == time(
-            10, 12, 3, tzinfo=timezone(timedelta(hours=3))
-        )
+        assert type_converter.apply("10:12:03+03:00") == time(10, 12, 3, tzinfo=timezone(timedelta(hours=3)))
 
     def test_transform_failed(self):
         type_converter = TypeConverter.build({"type": "time"})
@@ -143,19 +141,13 @@ class TestNullableField(TestCase):
         assert type_converter.apply(None) is None
 
     def test_decimal(self):
-        type_converter = TypeConverter.build(
-            {"type": {"key": "decimal", "nullable": True}}
-        )
+        type_converter = TypeConverter.build({"type": {"key": "decimal", "nullable": True}})
         assert type_converter.apply(None) is None
 
     def test_time(self):
-        type_converter = TypeConverter.build(
-            {"type": {"key": "time", "nullable": True}}
-        )
+        type_converter = TypeConverter.build({"type": {"key": "time", "nullable": True}})
         assert type_converter.apply(None) is None
 
     def test_datetime(self):
-        type_converter = TypeConverter.build(
-            {"type": {"key": "datetime", "nullable": True}}
-        )
+        type_converter = TypeConverter.build({"type": {"key": "datetime", "nullable": True}})
         assert type_converter.apply(None) is None

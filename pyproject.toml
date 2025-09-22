@@ -11,20 +11,24 @@ repository = "https://github.com/ZeroGachis/magicparse"
 python = "^3.12"
 
 [tool.poetry.group.dev.dependencies]
-black = "^25.0.0"
-flake8 = "^7.0.0"
 pytest = "^8.0.0"
 awscli = "~1"
 flake8-pyproject = "~1.2.3"
+ruff = "^0.13.1"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]
 build-backend = "poetry.masonry.api"
 
-[tool.flake8]
-max-line-length = 88
-extend-ignore = ["E203", "E722"]
-exclude = [".git/", ".pytest_cache/", ".venv"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+ignore = [
+    "E722", # Allow for bare 'except'
+]
 
 [tool.pytest.ini_options]
 python_files = ["tests/*"]

@@ -306,25 +306,11 @@ poetry install
 poetry run pytest
 
 # Format code
-poetry run black .
+poetry run ruff format
 
 # Lint code
-poetry run flake8
+poetry run ruff check
 ```
-
-## Breaking Changes
-
-### Version 1.0.0
-
-- output format is now a list of typed result. (Before it was a Tuple[dict, list[dict]]) that represent parsed values and errors).
-### Version 0.16.0
-
-- **Python 3.12+ required**: Upgraded from Python 3.11 to Python 3.12. Update your Python environment before upgrading.
-
-### Version 0.15.0
-
-- **Python 3.11+ required**: Upgraded from Python 3.10 to Python 3.11. Update your Python environment before upgrading.
-
 
 ## License
 
