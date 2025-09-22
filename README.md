@@ -2,19 +2,64 @@
 
 Declarative parser for structured data files.
 
-## Installation
+## Table of contents
 
-```bash
-poetry install magicparse
+- [Getting started](#getting-started)
+  - [Dev requirements](#dev-requirements)
+- [Usage](#usage)
+  - [Parse content](#parse-content)
+  - [Register a custom transform](#register-custom-transform)
+  - [Register a custom schema](#register-custom-schema)
+  - [Stream parsing](#stream-parsing)
+  - [Custom encoding](#custom-encoding)
+- [API Reference](#api-reference)
+ - [File types](#file-types)
+ - [Types](#types)
+ - [Computed fields](#computed-fields)
+ - [Return types](#return-types)
+ - [Error handling](#error-handling)
+- [License](#license)
+
+<a id="getting-started"></a>
+
+## Getting started
+
+📝 We recommend you to take time to read this README entirely before doing
+anything to have a good overview of what you are going to do and avoid to
+wrongly anticipate any steps.
+
+<a id="dev-requirements"></a>
+
+### Dev requirements
+
+After this point we expect you to have [mise](https://mise.jdx.dev/) installed on your machine.
+
+Use mise to install Python and poetry
+
+```shell
+mise install
+
+# You can then test that they are available 
+python --version
+poetry --version
 ```
 
-## Requirements
+Install the python dev dependencies and setup pre-commit hooks
 
-- Python 3.12+
+```shell
+poetry install
+pre-commit install
+```
+
+<a id="usage"></a>
 
 ## Usage
 
+<a id="parse-content"></a>
+
 ### Parse content
+
+
 
 ```python
 import magicparse
@@ -110,7 +155,9 @@ rows = magicparse.parse(data="...", schema=schema)
 ```
 
 
-### Register a custom transform and parse content
+<a id="register-custom-transform"></a>
+
+### Register a custom transform
 
 ```python
 from uuid import UUID
@@ -138,7 +185,9 @@ rows = magicparse.parse("13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2", schema)
 assert rows == [{"shop-guid": "13ec10cc-cc7e-4ee9-b091-9caa6d11aeb2"}]
 ```
 
-### Register a custom schema and parse content
+<a id="register-custom-schema"></a>
+
+### Register a custom schema
 
 ```python
 import magicparse
@@ -164,6 +213,8 @@ schema = {
 rows = magicparse.parse("Joe|William|Jack|Averell", schema)
 assert rows == [{"name": "Joe"}, {"name": "William"}, {"name": "Jack"}, {"name": "Averell"}]
 ```
+
+<a id="stream-parsing"></a>
 
 ### Stream parsing
 
@@ -192,6 +243,8 @@ for row in magicparse.stream_parse(data="...", schema=schema):
             print("Unknown type of row.")
 ```
 
+<a id="custom-encoding"></a>
+
 ### Custom encoding
 
 By default, magicparse uses UTF-8 encoding. You can specify a different encoding:
@@ -206,16 +259,20 @@ schema = {
 }
 ```
 
-## API
+<a id="api-reference"></a>
+
+## API Reference
+
+<a id="file-types"></a>
 
 ### File types
 
 - CSV (with or without header)
 - Columnar
 
-### Fields
+<a id="types"></a>
 
-#### Types
+### Types
 
 - str
 - int
@@ -243,6 +300,8 @@ schema = {
 - divide
 - round
 
+<a id="computed-fields"></a>
+
 ### Computed Fields
 
 Types, Pre-processors, Post-processors and validator is same as Field
@@ -254,7 +313,9 @@ Types, Pre-processors, Post-processors and validator is same as Field
 - multiply
 - coalesce
 
-## Return Types
+<a id="return-types"></a>
+
+### Return Types
 
 The parser returns a list of row objects:
 
@@ -262,7 +323,9 @@ The parser returns a list of row objects:
 - **`RowFailed`**: Failed to parse row with `errors` message
 - **`RowSkipped`**: Skipped row with `errors` message
 
-## Error Handling
+<a id="error-handling"></a>
+
+### Error Handling
 
 You can configure error handling for types, validators, and processors:
 
@@ -281,36 +344,7 @@ Error handling options:
 - `"raise"` (default): Raise exception on error
 - `"skip-row"`: Skip the row and continue processing
 
-## Docker
-
-The project includes Docker support:
-
-```bash
-# Build and run with docker-compose
-docker-compose up --build
-
-# Or build manually
-docker build -t magicparse .
-docker run -it magicparse
-```
-
-## Development
-
-### Setup
-
-```bash
-# Install dependencies
-poetry install
-
-# Run tests
-poetry run pytest
-
-# Format code
-poetry run ruff format
-
-# Lint code
-poetry run ruff check
-```
+<a id="license"></a>
 
 ## License
 
