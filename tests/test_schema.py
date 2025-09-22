@@ -1,5 +1,6 @@
 from decimal import Decimal
-from typing import Any
+from io import BytesIO
+from typing import Any, Iterator
 
 from magicparse import Schema
 from magicparse.post_processors import PostProcessor
@@ -385,8 +386,8 @@ class TestRegister(TestCase):
         def key() -> str:
             return "piped"
 
-        def get_reader(self, stream):
-            for item in stream.read().split("|"):
+        def get_reader(self, stream: BytesIO) -> Iterator[list[str] | str]:
+            for item in stream.read().decode("utf-8").split("|"):
                 yield [item]
 
     def test_register(self):
@@ -477,6 +478,7 @@ class TestComputedFields(TestCase):
         rows = list(schema.stream_parse(b"A;B"))
         print(rows)
         assert len(rows) == 1
+        assert isinstance(rows[0], RowParsed)
         assert rows[0].row_number == 1
         assert rows[0].values == {
             "field_1": "A",

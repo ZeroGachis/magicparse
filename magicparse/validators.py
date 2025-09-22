@@ -1,11 +1,14 @@
 from decimal import Decimal
+from typing import Any
 from .transform import Transform, OnError
 import re
 
 
 class Validator(Transform):
+    registry = dict[str, type["Validator"]]()
+
     @classmethod
-    def build(cls, options: dict) -> "Validator":
+    def build(cls, options: dict[str, Any]) -> "Validator":
         try:
             name = options["name"]
         except:
@@ -16,6 +19,8 @@ class Validator(Transform):
         except:
             raise ValueError(f"invalid validator '{name}'")
 
+        assert issubclass(validator, Validator)
+
         on_error = options.setdefault("on-error", OnError.RAISE)
         if "parameters" in options:
             return validator(on_error=on_error, **options["parameters"])
@@ -24,11 +29,11 @@ class Validator(Transform):
 
 
 class RegexMatches(Validator):
-    def __init__(self, on_error: str, pattern: str) -> None:
+    def __init__(self, on_error: OnError, pattern: str) -> None:
         super().__init__(on_error)
         self.pattern = re.compile(pattern)
 
-    def apply(self, value: str | None) -> str:
+    def apply(self, value: str) -> str | None:
         if re.match(self.pattern, value):
             return value
 
@@ -40,7 +45,7 @@ class RegexMatches(Validator):
 
 
 class GreaterThan(Validator):
-    def __init__(self, on_error: str, threshold: float) -> None:
+    def __init__(self, on_error: OnError, threshold: float) -> None:
         super().__init__(on_error)
         self.threshold = Decimal(threshold)
 

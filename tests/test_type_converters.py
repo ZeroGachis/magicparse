@@ -1,5 +1,6 @@
 from datetime import datetime, time, timedelta, timezone
 from decimal import Decimal
+from typing import Any
 from unittest import TestCase
 from uuid import UUID
 
@@ -125,7 +126,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "guid"
 
-        def convert(self, value):
+        def convert(self, value: Any):
             return UUID(value)
 
     def test_register(self):

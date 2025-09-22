@@ -6,25 +6,25 @@ from dataclasses import dataclass
 from magicparse.transform import SkipRow
 from .fields import Field, ComputedField
 from io import BytesIO
-from typing import Any, Dict, List, Union, Iterable
+from typing import Any, Dict, Iterator, List, Union, Iterable
 
 
 @dataclass(frozen=True, slots=True)
 class RowParsed:
     row_number: int
-    values: dict
+    values: dict[str, Any]
 
 
 @dataclass(frozen=True, slots=True)
 class RowSkipped:
     row_number: int
-    errors: list[dict]
+    errors: list[dict[str, Any]]
 
 
 @dataclass(frozen=True, slots=True)
 class RowFailed:
     row_number: int
-    errors: list[dict]
+    errors: list[dict[str, Any]]
 
 
 class Schema(ABC):
@@ -40,15 +40,16 @@ class Schema(ABC):
         self.encoding = options.get("encoding", "utf-8")
 
     @abstractmethod
-    def get_reader(self, stream: BytesIO) -> Iterable:
+    def get_reader(self, stream: BytesIO) -> Iterator[list[str] | str]:
         pass
 
     @staticmethod
+    @abstractmethod
     def key() -> str:
         pass
 
     @classmethod
-    def build(cls, options: Dict[str, Any]) -> "Schema":
+    def build(cls, options: dict[str, Any]) -> "Schema":
         file_type = options["file_type"]
         schema = cls.registry.get(file_type)
         if schema:
@@ -57,13 +58,13 @@ class Schema(ABC):
         raise ValueError("unknown file type")
 
     @classmethod
-    def register(cls, schema: "Schema") -> None:
+    def register(cls, schema: type["Schema"]) -> None:
         if not hasattr(cls, "registry"):
-            cls.registry = {}
+            cls.registry = dict[str, type["Schema"]]()
 
         cls.registry[schema.key()] = schema
 
-    def parse(self, data: Union[bytes, BytesIO]) -> List[RowParsed] | List[RowSkipped] | List[RowFailed]:
+    def parse(self, data: Union[bytes, BytesIO]) -> list[RowParsed | RowSkipped | RowFailed]:
         return list(self.stream_parse(data))
 
     def stream_parse(self, data: Union[bytes, BytesIO]) -> Iterable[RowParsed | RowSkipped | RowFailed]:
@@ -97,14 +98,17 @@ class Schema(ABC):
             yield RowParsed(row_number, {**fields.values, **computed_fields.values})
 
     def process_fields(
-        self, fields: List[Field], row: List[str], row_number: int
+        self, fields: list[Field] | list[ComputedField], row: str | list[str] | dict[str, Any], row_number: int
     ) -> RowParsed | RowSkipped | RowFailed:
-        item = {}
-        errors = []
+        item = dict[str, Any]()
+        errors = list[dict[str, Any]]()
         skip_row = False
         for field in fields:
             try:
-                source = row | item if isinstance(row, dict) else row
+                if isinstance(row, dict):
+                    source = row | item
+                else:
+                    source = row
                 parsed_value = field.parse(source)
             except Exception as exc:
                 errors.append(field.error(exc))
@@ -129,7 +133,7 @@ class CsvSchema(Schema):
         self.delimiter = options.get("delimiter", ",")
         self.quotechar = options.get("quotechar", None)
 
-    def get_reader(self, stream: BytesIO) -> Iterable[List[str]]:
+    def get_reader(self, stream: BytesIO) -> Iterator[list[str]]:
         stream_reader = codecs.getreader(self.encoding)
         stream_content = stream_reader(stream)
         csv_quoting = csv.QUOTE_NONE
@@ -148,7 +152,7 @@ class CsvSchema(Schema):
 
 
 class ColumnarSchema(Schema):
-    def get_reader(self, stream: BytesIO) -> Iterable[str]:
+    def get_reader(self, stream: BytesIO) -> Iterator[str]:
         stream_reader_factory = codecs.getreader(self.encoding)
         stream_reader = stream_reader_factory(stream)
         while True:

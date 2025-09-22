@@ -1,12 +1,15 @@
 from abc import ABC
 from decimal import Decimal
+from typing import Any, cast
 
 from .transform import Transform, OnError
 
 
 class Builder(Transform, ABC):
+    registry = dict[str, type["Builder"]]()
+
     @classmethod
-    def build(cls, options: dict) -> "Builder":
+    def build(cls, options: dict[str, Any]) -> "Builder":
         try:
             name = options["name"]
         except:
@@ -25,23 +28,20 @@ class Builder(Transform, ABC):
 
 
 class Concat(Builder):
-    def __init__(self, on_error: OnError, fields: list[str]) -> None:
+    def __init__(self, on_error: OnError, fields: Any) -> None:
         super().__init__(on_error)
         if (
-            not fields
-            or isinstance(fields, str)
-            or not isinstance(fields, list)
-            or not all(isinstance(field, str) for field in fields)
-            or len(fields) < 2
+            not isinstance(fields, list)
+            or not all(isinstance(field, str) for field in fields)  # type: ignore[reportUnknownVariableType]
+            or len(fields) < 2  # type: ignore[reportUnknownVariableType]
         ):
             raise ValueError(
                 "composite-processor 'concat': 'fields' parameter must be a list[str] with at least two elements"
             )
+        self.fields = cast(list[str], fields)
 
-        self.fields = fields
-
-    def apply(self, row: dict) -> str:
-        return "".join(row[field] for field in self.fields)
+    def apply(self, value: dict[str, Any]) -> str:
+        return "".join(value[field] for field in self.fields)
 
     @staticmethod
     def key() -> str:
@@ -49,7 +49,7 @@ class Concat(Builder):
 
 
 class Divide(Builder):
-    def __init__(self, on_error: OnError, numerator: str, denominator: str) -> None:
+    def __init__(self, on_error: OnError, numerator: Any, denominator: Any) -> None:
         super().__init__(on_error)
         if not numerator or not isinstance(numerator, str):
             raise ValueError("builder 'divide': 'numerator' parameter must be a non null str")
@@ -58,8 +58,8 @@ class Divide(Builder):
         self.numerator = numerator
         self.denominator = denominator
 
-    def apply(self, row: dict) -> Decimal:
-        return row[self.numerator] / row[self.denominator]
+    def apply(self, value: dict[str, Any]) -> Decimal:
+        return value[self.numerator] / value[self.denominator]
 
     @staticmethod
     def key() -> str:
@@ -67,7 +67,7 @@ class Divide(Builder):
 
 
 class Multiply(Builder):
-    def __init__(self, on_error: OnError, x_factor: str, y_factor: str) -> None:
+    def __init__(self, on_error: OnError, x_factor: Any, y_factor: Any) -> None:
         super().__init__(on_error)
         if not x_factor or not isinstance(x_factor, str):
             raise ValueError("builder 'multiply': 'x_factor' parameter must be a non null str")
@@ -76,8 +76,8 @@ class Multiply(Builder):
         self.x_factor = x_factor
         self.y_factor = y_factor
 
-    def apply(self, row: dict):
-        return row[self.x_factor] * row[self.y_factor]
+    def apply(self, value: dict[str, Any]):
+        return value[self.x_factor] * value[self.y_factor]
 
     @staticmethod
     def key() -> str:
@@ -85,19 +85,19 @@ class Multiply(Builder):
 
 
 class Coalesce(Builder):
-    def __init__(self, on_error: OnError, fields: list[str]) -> None:
+    def __init__(self, on_error: OnError, fields: Any) -> None:
         super().__init__(on_error)
         if not fields:
             raise ValueError("parameters should defined fields to coalesce")
-        if not isinstance(fields, list) or not all(isinstance(field, str) for field in fields) or len(fields) < 2:
+        if not isinstance(fields, list) or not all(isinstance(field, str) for field in fields) or len(fields) < 2:  # type: ignore[reportUnknownVariableType]
             raise ValueError("parameters should have two fields at least")
 
-        self.fields = fields
+        self.fields = cast(list[str], fields)
 
-    def apply(self, row: dict) -> str:
+    def apply(self, value: dict[str, Any]) -> str | None:
         for field in self.fields:
-            if row[field]:
-                return row[field]
+            if value[field]:
+                return value[field]
         return None
 
     @staticmethod

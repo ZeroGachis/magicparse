@@ -1,20 +1,25 @@
 from abc import abstractmethod
 from datetime import datetime, time
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 from .transform import Transform
 from .transform import OnError
 
 
 class TypeConverter(Transform):
+    registry = dict[str, type["TypeConverter"]]()
+
     def __init__(self, nullable: bool, on_error: OnError) -> None:
         super().__init__(on_error)
         self.nullable = nullable
 
     def apply(self, value: str | None) -> Any | None:
-        if value is None and self.nullable:
-            return None
+        if value is None:
+            if self.nullable:
+                return None
+            else:
+                raise ValueError("type is non nullable")
 
         return self.convert(value)
 
@@ -23,9 +28,9 @@ class TypeConverter(Transform):
         pass
 
     @classmethod
-    def build(cls, options) -> "TypeConverter":
+    def build(cls, options: dict[str, Any]) -> "Transform":
         try:
-            type = options["type"]
+            type = cast(str | dict[str, Any], options["type"])
             if isinstance(type, str):
                 key = type
                 type = {}

@@ -1,4 +1,5 @@
 import re
+from typing import Any
 from magicparse.pre_processors import (
     LeftPadZeroes,
     Map,
@@ -138,7 +139,7 @@ class TestRegexExtract(TestCase):
                 "parameters": {"pattern": "^xxx(?P<value>\\d{13})xxx$"},
             }
         )
-        pre_processor.apply("xxx9780201379624xxx") == "9780201379624"
+        assert pre_processor.apply("xxx9780201379624xxx") == "9780201379624"
 
 
 class TestRegister(TestCase):
@@ -147,7 +148,7 @@ class TestRegister(TestCase):
         def key() -> str:
             return "yes"
 
-        def apply(self, value):
+        def apply(self, value: Any):
             return f"YES {value}"
 
     def test_register(self):
