@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.1](https://github.com/ZeroGachis/magicparse/compare/1.0.0...1.0.1) (2025-09-24)
+
+
+### Miscellaneous Chores
+
+* Replace black/flake8 with ruff ([2f3fab3](https://github.com/ZeroGachis/magicparse/commit/2f3fab3d9162ec3b9b2251ef11315e5926569868))
+* Setup pre-commit ([12f6d7d](https://github.com/ZeroGachis/magicparse/commit/12f6d7d1138951089c5d3d23cb72c0968512a0fd))
+* Setup pyright and expose type annotations ([a25273f](https://github.com/ZeroGachis/magicparse/commit/a25273f20a4fd521ac45fea9b03f7344e78cfb70))
+
+
+### Continuous Integration
+
+* add permissions on github actions ([265b87c](https://github.com/ZeroGachis/magicparse/commit/265b87c2c07f9a1454477970d229dfe0784fdf89))
+
 ## [1.0.0](https://github.com/ZeroGachis/magicparse/compare/0.16.1...1.0.0) (2025-09-19)
 
 
