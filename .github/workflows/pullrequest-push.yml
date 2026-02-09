@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v4
+    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v5
     permissions:
       contents: read
       security-events: write
@@ -34,7 +34,7 @@ jobs:
       [
         build,
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v4
+    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v5
     permissions:
       contents: read
       id-token: write
@@ -58,7 +58,7 @@ jobs:
       [
         build,
       ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v4
+    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v5
     permissions:
       contents: read
       id-token: write
@@ -87,7 +87,7 @@ jobs:
         unit-tests,
         static-metrics,
       ]
-    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v4
+    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v5
     permissions:
       contents: read
       id-token: write
