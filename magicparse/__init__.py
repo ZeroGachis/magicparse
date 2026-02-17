@@ -1,4 +1,4 @@
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from io import BytesIO
 
 from .schema import (
@@ -16,7 +16,7 @@ from .builders import (
 )
 from .transform import Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
-from typing import Any, Iterable
+from typing import Any
 from .validators import Validator, builtins as builtins_validators
 
 

@@ -8,15 +8,21 @@ repository = "https://github.com/ZeroGachis/magicparse"
 
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.13"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
+pytest = "^9"
 awscli = "~1"
-flake8-pyproject = "~1.2.3"
-ruff = "^0.13.1"
-pre-commit = "^4.3.0"
-pyright = {version = "^1.1.405", extras = ["nodejs"]}
+ruff = "^0.15"
+pre-commit = "^4"
+basedpyright = "^1.38"
+
+[tool.poetry.group.ci]
+optional = true
+
+[tool.poetry.group.ci.dependencies]
+pytest-cov = "^7.0.0"
+pytest-github-actions-annotate-failures = "^0.3.0"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]
@@ -25,7 +31,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.ruff]
 line-length = 120
-target-version = "py312"
+target-version = "py313"
 
 [tool.ruff.lint]
 ignore = [
@@ -35,6 +41,7 @@ ignore = [
 [tool.pytest.ini_options]
 python_files = ["tests/*"]
 
+
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
@@ -42,3 +49,5 @@ typeCheckingMode = "strict"
 include = ["magicparse/**", "tests/**"]
 
 executionEnvironments = [{ root = "magicparse" }]
+failOnWarnings = true
+deprecateTypingAliases = true
