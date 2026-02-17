@@ -275,6 +275,18 @@ files = [
 ]
 
 [[package]]
+name = "jsonata-python"
+version = "0.6.1"
+description = "Pure Python implementation of JSONata"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = [
+    {file = "jsonata_python-0.6.1-py3-none-any.whl", hash = "sha256:21d80d0b34f1753935371c79b140406d45a2d4ad9dd5c29e4138dbf58991e6ef"},
+    {file = "jsonata_python-0.6.1.tar.gz", hash = "sha256:416a65731f31f7cf427f3711bb1bf9117174985f9795e198020cce1a38d32984"},
+]
+
+[[package]]
 name = "nodeenv"
 version = "1.9.1"
 description = "Node.js virtual environment builder"
@@ -646,4 +658,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.13"
-content-hash = "43112dde1f0c90cbb70389de57722e62888cc584f5436527a4807cc895b71637"
+content-hash = "ee141b547345a14a1fa74be1c5c7a687bf5782c569f43038a49b8798d0c15159"
