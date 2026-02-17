@@ -3,11 +3,11 @@ from datetime import datetime, time
 from decimal import Decimal
 from typing import Any, cast
 
-from .transform import Transform
+from .transform import ParsingTransform
 from .transform import OnError
 
 
-class TypeConverter(Transform):
+class TypeConverter(ParsingTransform):
     registry = dict[str, type["TypeConverter"]]()
 
     def __init__(self, nullable: bool, on_error: OnError) -> None:
@@ -28,7 +28,7 @@ class TypeConverter(Transform):
         pass
 
     @classmethod
-    def build(cls, options: dict[str, Any]) -> "Transform":
+    def build(cls, options: dict[str, Any]) -> "ParsingTransform":
         try:
             type = cast(str | dict[str, Any], options["type"])
             if isinstance(type, str):

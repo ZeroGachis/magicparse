@@ -1,10 +1,10 @@
 from decimal import Decimal
 from typing import Any
-from .transform import Transform, OnError
+from .transform import ParsingTransform, OnError
 import re
 
 
-class Validator(Transform):
+class Validator(ParsingTransform):
     registry = dict[str, type["Validator"]]()
 
     @classmethod
