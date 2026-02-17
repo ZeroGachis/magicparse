@@ -14,7 +14,7 @@ from .builders import (
     Builder,
     builtins as builtins_composite_processors,
 )
-from .transform import Transform
+from .transform import ParsingTransform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
 from typing import Any
 from .validators import Validator, builtins as builtins_validators
@@ -44,7 +44,7 @@ def stream_parse(data: bytes | BytesIO, schema_options: dict[str, Any]) -> Itera
     return schema_definition.stream_parse(data)
 
 
-Registrable = type[Schema] | type[Transform]
+Registrable = type[Schema] | type[ParsingTransform]
 
 
 def register(items: Registrable | Sequence[Registrable]) -> None:

@@ -22,7 +22,7 @@ class OnError(StrEnum):
     SKIP_ROW = "skip-row"
 
 
-class Transform(ABC):
+class ParsingTransform(ABC):
     registry: dict[str, type[Self]]
 
     def __init__(self, on_error: OnError) -> None:
@@ -30,7 +30,7 @@ class Transform(ABC):
 
     @classmethod
     @abstractmethod
-    def build(cls, options: dict[str, Any]) -> "Transform":
+    def build(cls, options: dict[str, Any]) -> "ParsingTransform":
         pass
 
     @abstractmethod

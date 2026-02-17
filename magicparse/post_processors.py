@@ -1,9 +1,9 @@
-from .transform import Transform, OnError
+from .transform import ParsingTransform, OnError
 from decimal import Decimal
 from typing import Any
 
 
-class PostProcessor(Transform):
+class PostProcessor(ParsingTransform):
     registry = dict[str, type["PostProcessor"]]()
 
     @classmethod

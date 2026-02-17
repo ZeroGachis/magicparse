@@ -1,9 +1,9 @@
 import re
 from typing import Any
-from .transform import Transform, OnError
+from .transform import ParsingTransform, OnError
 
 
-class PreProcessor(Transform):
+class PreProcessor(ParsingTransform):
     registry = dict[str, type["PreProcessor"]]()
 
     @classmethod

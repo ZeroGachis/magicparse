@@ -2,10 +2,10 @@ from abc import ABC
 from decimal import Decimal
 from typing import Any, cast
 
-from .transform import Transform, OnError
+from .transform import ParsingTransform, OnError
 
 
-class Builder(Transform, ABC):
+class Builder(ParsingTransform, ABC):
     registry = dict[str, type["Builder"]]()
 
     @classmethod
