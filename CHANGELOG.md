@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/ZeroGachis/magicparse/compare/1.0.1...1.0.2) (2026-02-17)
+
+
+### Miscellaneous Chores
+
+* Move to Python 3.13 / Poetry 2.2 + Speedup CI builds ([2df0bcb](https://github.com/ZeroGachis/magicparse/commit/2df0bcbe5d0adfaf4551822dcb053eaed03fdb8e))
+
 ## [1.0.1](https://github.com/ZeroGachis/magicparse/compare/1.0.0...1.0.1) (2025-09-24)
 
 
