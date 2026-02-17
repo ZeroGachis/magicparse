@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, Self
+from jsonata import Jsonata  # pyright: ignore[reportMissingTypeStubs]
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,3 +46,9 @@ class ParsingTransform(ABC):
     @classmethod
     def register(cls, transform: type[Self]) -> None:
         cls.registry[transform.key()] = transform
+
+
+class Transform(Jsonata):
+    @classmethod
+    def build(cls, expression: str) -> "Transform":
+        return Transform(expr=expression)

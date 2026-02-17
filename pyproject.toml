@@ -9,6 +9,7 @@ repository = "https://github.com/ZeroGachis/magicparse"
 
 [tool.poetry.dependencies]
 python = "^3.13"
+jsonata-python = "^0.6.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^9"

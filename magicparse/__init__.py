@@ -14,7 +14,7 @@ from .builders import (
     Builder,
     builtins as builtins_composite_processors,
 )
-from .transform import ParsingTransform
+from .transform import ParsingTransform, Transform
 from .type_converters import TypeConverter, builtins as builtins_type_converters
 from typing import Any
 from .validators import Validator, builtins as builtins_validators
@@ -30,6 +30,7 @@ __all__ = [
     "RowParsed",
     "RowSkipped",
     "RowFailed",
+    "Transform",
     "Validator",
 ]
 
