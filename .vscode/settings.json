@@ -1,7 +1,20 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
-    "python.testing.pytestEnabled": true,
-    "python.experiments.optInto": [
-        "pythonTestAdapter"
-    ],
+  "python.defaultInterpreterPath": "${workspaceFolder}/.venv",
+  "python.experiments.enabled": false,
+  "python.experiments.optInto": [
+    "pythonTestAdapter"
+  ],
+  "python.testing.pytestEnabled": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit"
+  },
+  "[python]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+    },
+  },
+  "ruff.organizeImports": false,
 }
