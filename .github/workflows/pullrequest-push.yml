@@ -10,91 +10,38 @@ on:
       - 'README.md'
       - 'catalog-info.yaml'
 
+
+permissions:
+  actions: read
+  checks: write
+  contents: read
+  id-token: write
+  packages: write
+  pull-requests: write
+  security-events: write
+
+
 jobs:
-  build:
-    uses: ZeroGachis/.github/.github/workflows/build-image.yml@v4
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-      id-token: write
-      packages: write
-      pull-requests: write
-      checks: write
-    with:
-      image_name: magicparse
-      dockerfile_context: .
-      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
-      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
-      regitry_url: ghcr.io
-    secrets: inherit
-
-  static-metrics:
-    needs:
-      [
-        build,
-      ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker.yml@v4
-    permissions:
-      contents: read
-      id-token: write
-      packages: read
-      actions: write
-      checks: write
-    with:
-      image_url: ${{ needs.build.outputs.image-url }}
-      workdir: /app
-      vault_enabled: false
-      tailscale_enabled: false
-      run_command: |
-        poetry install --no-interaction --no-ansi --no-root --only dev
-        ruff check --diff ./
-        ruff format --check --diff ./
-        pyright
-    secrets: inherit
-
-  unit-tests:
-    needs:
-      [
-        build,
-      ]
-    uses: ZeroGachis/.github/.github/workflows/run-docker-with-db.yml@v4
-    permissions:
-      contents: read
-      id-token: write
-      packages: read
-      actions: write
-      checks: write
-    with:
-      image_url: ${{ needs.build.outputs.image-url }}
-      workdir: /app
-      run_command: |
-        poetry install --no-interaction --no-ansi --no-root --only dev
-        poetry run pytest --verbose --junit-xml reports/unit_tests_results.xml
-      vault_enabled: false
-      tailscale_enabled: false
-      enable_test_report: true
-      test_report_name: "UT Report"
-      test_report_path: reports/unit_tests_results.xml
-      test_report_format: java-junit
-    secrets: inherit
-
-  destroy:
-    if: always()
-    needs:
-      [
-        build,
-        unit-tests,
-        static-metrics,
-      ]
-    uses: ZeroGachis/.github/.github/workflows/delete-docker-image.yml@v4
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-    with:
-      image_name: magicparse
-      image_version: ${{ needs.build.outputs.image-version }}
-      vault_url: ${{ vars.PULLREQUEST_VAULT_URL }}
-      vault_github_actions_role: ${{ vars.VAULT_GITHUB_ACTIONS_ROLE }}
-    secrets: inherit
+  static-analysis-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: jdx/mise-action@v3
+        with:
+          install: true
+          install_args: python poetry
+          cache: true
+      - name: Install Python dependencies
+        uses: ZeroGachis/.github/.github/actions/poetry-install@v5
+        with:
+          aws_account_id: ${{ vars.PULL_REQUEST_AWS_ACCOUNT_ID }}
+          install_options: --with ci
+          depends_on_private_packages: false
+      - name: Run Linter
+        run: poetry run ruff check --output-format=github
+      - name: Run Formatter
+        run: poetry run ruff format --check
+      - name: Run Typechecker
+        run: poetry run basedpyright
+      - name: Run unit tests
+        run: poetry run pytest -p pytest_github_actions_annotate_failures

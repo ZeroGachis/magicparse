@@ -27,5 +27,5 @@ jobs:
       packages: read
       id-token: write
     with:
-      python_version: "3.11"
+      python_version: "3.13"
       environment_name: main

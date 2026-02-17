@@ -1,12 +1,13 @@
 import codecs
 from abc import ABC, abstractmethod
+from collections.abc import Iterable, Iterator
 import csv
 from dataclasses import dataclass
 
 from magicparse.transform import SkipRow
 from .fields import Field, ComputedField
 from io import BytesIO
-from typing import Any, Dict, Iterator, List, Union, Iterable
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -28,11 +29,11 @@ class RowFailed:
 
 
 class Schema(ABC):
-    fields: List[Field]
+    fields: list[Field]
     encoding: str
     has_headers: bool
 
-    def __init__(self, options: Dict[str, Any]) -> None:
+    def __init__(self, options: dict[str, Any]) -> None:
         self.fields = [Field.build(item) for item in options["fields"]]
         self.computed_fields = [ComputedField.build(item) for item in options.get("computed-fields", [])]
 
@@ -64,10 +65,10 @@ class Schema(ABC):
 
         cls.registry[schema.key()] = schema
 
-    def parse(self, data: Union[bytes, BytesIO]) -> list[RowParsed | RowSkipped | RowFailed]:
+    def parse(self, data: bytes | BytesIO) -> list[RowParsed | RowSkipped | RowFailed]:
         return list(self.stream_parse(data))
 
-    def stream_parse(self, data: Union[bytes, BytesIO]) -> Iterable[RowParsed | RowSkipped | RowFailed]:
+    def stream_parse(self, data: bytes | BytesIO) -> Iterable[RowParsed | RowSkipped | RowFailed]:
         if isinstance(data, bytes):
             stream = BytesIO(data)
         else:
@@ -128,7 +129,7 @@ class Schema(ABC):
 
 
 class CsvSchema(Schema):
-    def __init__(self, options: Dict[str, Any]) -> None:
+    def __init__(self, options: dict[str, Any]) -> None:
         super().__init__(options)
         self.delimiter = options.get("delimiter", ",")
         self.quotechar = options.get("quotechar", None)

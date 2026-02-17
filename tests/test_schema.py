@@ -1,6 +1,7 @@
+from collections.abc import Iterator
 from decimal import Decimal
 from io import BytesIO
-from typing import Any, Iterator
+from typing import Any
 
 from magicparse import Schema
 from magicparse.post_processors import PostProcessor
