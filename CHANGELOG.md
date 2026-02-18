@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/ZeroGachis/magicparse/compare/1.0.2...1.1.0) (2026-02-18)
+
+
+### Features
+
+* Expose a Transform class to build & evaluate a JSONata expression ([07b1fe3](https://github.com/ZeroGachis/magicparse/commit/07b1fe3d1e2e486ca2679178ae6b3d90b3d09e8c))
+
+
+### Miscellaneous Chores
+
+* **vscode:** Improve default settings ([d9869c5](https://github.com/ZeroGachis/magicparse/commit/d9869c50ec41a68cc793885fa861368605022366))
+
+
+### Code Refactoring
+
+* Rename internal 'Tranform' abstract class into 'ParsingTransform' ([830bff5](https://github.com/ZeroGachis/magicparse/commit/830bff5de4066f47934ed6a2d97be065eb76677a))
+
 ## [1.0.2](https://github.com/ZeroGachis/magicparse/compare/1.0.1...1.0.2) (2026-02-17)
 
 
