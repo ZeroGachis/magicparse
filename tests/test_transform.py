@@ -33,6 +33,12 @@ def test_divide():
         Transform("$divide(1, 0)").evaluate({})
 
 
+def test_is_zero():
+    assert Transform(expression="$is_zero(1)").evaluate({}) is False
+    assert Transform(expression="$is_zero(0)").evaluate({}) is True
+    assert Transform(expression="$is_zero(input)").evaluate({"input": Decimal(0)}) is True
+
+
 def test_left_pad_zeroes():
     assert Transform('$left_pad_zeroes("", 5)').evaluate({}) == "00000"
     assert Transform('$left_pad_zeroes("111", 5)').evaluate({}) == "00111"
