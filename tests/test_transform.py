@@ -5,6 +5,16 @@ import pytest
 from magicparse.transform import SkippedRow, TransformError
 
 
+def test_assert_positive():
+    assert Transform("$assert_positive(1)").evaluate({})
+
+    with pytest.raises(TransformError, match="Value is not positive"):
+        Transform("$assert_positive(0)").evaluate({})
+
+    with pytest.raises(TransformError, match="Value is not positive"):
+        Transform("$assert_positive(-1)").evaluate({})
+
+
 def test_coalesce_numbers():
     assert Transform("$coalesce_numbers(1, 2, 3)").evaluate({}) == 1
     assert Transform("$coalesce_numbers(0, 2, 3)").evaluate({}) == 2
@@ -21,16 +31,6 @@ def test_divide():
 
     with pytest.raises(TransformError, match="Cannot divide"):
         Transform("$divide(1, 0)").evaluate({})
-
-
-def test_is_positive():
-    assert Transform("$is_positive(1)").evaluate({})
-
-    with pytest.raises(TransformError, match="Value is not positive"):
-        Transform("$is_positive(0)").evaluate({})
-
-    with pytest.raises(TransformError, match="Value is not positive"):
-        Transform("$is_positive(-1)").evaluate({})
 
 
 def test_left_pad_zeroes():
