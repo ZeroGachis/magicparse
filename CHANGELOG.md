@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/ZeroGachis/magicparse/compare/1.1.0...1.2.0) (2026-02-23)
+
+
+### Features
+
+* Add Transform's builtin functions ([dc1ee7a](https://github.com/ZeroGachis/magicparse/commit/dc1ee7a305f189d5a115ee176fee83251fa0e9d6))
+
+
+### Bug Fixes
+
+* secu scan auto trigger and update workflow versions ([fd98619](https://github.com/ZeroGachis/magicparse/commit/fd98619b926e089fa4b360b49bebd71b8dcc0dc5))
+* secu scan auto trigger and update workflow versions ([b120d77](https://github.com/ZeroGachis/magicparse/commit/b120d776fc52f12c971226edba922b386fabd759))
+
 ## [1.1.0](https://github.com/ZeroGachis/magicparse/compare/1.0.2...1.1.0) (2026-02-18)
 
 
