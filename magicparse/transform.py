@@ -84,6 +84,10 @@ def assert_positive[T: int | float | Decimal](value: T) -> T:
     return value
 
 
+def is_zero(value: int | float | Decimal) -> bool:
+    return value == 0
+
+
 def left_pad_zeroes(value: str, width: int) -> str:
     try:
         return value.zfill(width)
@@ -167,6 +171,7 @@ class Transform(Jsonata):
             "assert_positive": assert_positive,
             "coalesce_numbers": coalesce_numbers,
             "divide": divide,
+            "is_zero": is_zero,
             "left_pad_zeroes": left_pad_zeroes,
             "length": length,
             "map_to": map_to,
