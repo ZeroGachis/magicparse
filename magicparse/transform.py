@@ -78,7 +78,7 @@ def divide[T: int | Decimal](numerator: T, denominator: T) -> float | Decimal:
         raise TransformError("Cannot divide", params={"numerator": numerator, "denominator": denominator}) from error
 
 
-def is_positive[T: int | float | Decimal](value: T) -> T:
+def assert_positive[T: int | float | Decimal](value: T) -> T:
     if value <= 0:
         raise TransformError("Value is not positive", params={"value": value})
     return value
@@ -159,9 +159,9 @@ class Transform(Jsonata):
     @staticmethod
     def get_builtin_functions() -> dict[str, Callable[..., Any]]:
         return {
+            "assert_positive": assert_positive,
             "coalesce_numbers": coalesce_numbers,
             "divide": divide,
-            "is_positive": is_positive,
             "left_pad_zeroes": left_pad_zeroes,
             "length": length,
             "map_to": map_to,
