@@ -113,6 +113,11 @@ def skip_row(reason: str | None) -> NoReturn:
     raise SkippedRow(reason or "")
 
 
+def skip_row_if(condition: bool, reason: str | None) -> None:
+    if condition:
+        raise SkippedRow(reason or "")
+
+
 def strip_whitespaces(value: str) -> str:
     try:
         return value.strip()
@@ -166,6 +171,7 @@ class Transform(Jsonata):
             "length": length,
             "map_to": map_to,
             "skip_row": skip_row,
+            "skip_row_if": skip_row_if,
             "strip_whitespaces": strip_whitespaces,
             "to_decimal": to_decimal,
             "to_int": to_int,

@@ -74,6 +74,13 @@ def test_skip_row():
         Transform('$skip_row("some reason")').evaluate({})
 
 
+def test_skip_row_if():
+    Transform('$skip_row_if(1 > 2, "some reason")').evaluate({})
+
+    with pytest.raises(SkippedRow, match="some reason"):
+        Transform('$skip_row_if(2 > 1, "some reason")').evaluate({})
+
+
 def test_strip_whitespaces():
     assert Transform('$strip_whitespaces("ABC")').evaluate({}) == "ABC"
     assert Transform('$strip_whitespaces("   ABC   ")').evaluate({}) == "ABC"
