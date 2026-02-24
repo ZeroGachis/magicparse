@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "magicparse"
-version = "1.2.0"
+version = "1.3.0"
 description = "Declarative parser 🛸"
 authors = ["Smartway <dev@zero-gachis.com>"]
 readme = "README.md"
