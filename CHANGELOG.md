@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.3.0](https://github.com/ZeroGachis/magicparse/compare/1.2.0...1.3.0) (2026-02-24)
+
+
+### Features
+
+* **transform:** Add  builtins ([ebb76b8](https://github.com/ZeroGachis/magicparse/commit/ebb76b8f540ec7e51382e0e41c66306f05994dda))
+* **transform:** Add  builtins ([bd2153f](https://github.com/ZeroGachis/magicparse/commit/bd2153f0a22787fa19cbcd38ec36ca640b8bf5cd))
+
+
+### Miscellaneous Chores
+
+* Bump github workflows from v5 to v6 ([75223de](https://github.com/ZeroGachis/magicparse/commit/75223de8b1d8604b8b37ec65862c1c9c1ee1a96e))
+
+
+### Code Refactoring
+
+* **transform:** Use 'assert' in builtins when asserting an a condition instead of 'is' ([79cb707](https://github.com/ZeroGachis/magicparse/commit/79cb707694125aa70547b707ada6ee8bd8751db5))
+
 ## [1.2.0](https://github.com/ZeroGachis/magicparse/compare/1.1.0...1.2.0) (2026-02-23)
 
 
