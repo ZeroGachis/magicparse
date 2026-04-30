@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.1](https://github.com/ZeroGachis/magicparse/compare/1.3.0...1.3.1) (2026-04-30)
+
+
+### Continuous Integration
+
+* Add security-scan workflow ([65f4e9a](https://github.com/ZeroGachis/magicparse/commit/65f4e9af7008d80581782119e7352469372e3f1f))
+* Only depends on a major release (v7) of the security-scan workflow ([6d7c1f6](https://github.com/ZeroGachis/magicparse/commit/6d7c1f6448bce73d4e93317b81933136c21e2f50))
+* Run security-scan workflow only once a week (every monday at 6AM) ([8e6948a](https://github.com/ZeroGachis/magicparse/commit/8e6948afeeb12e2c371c3db40f1544076ed61f79))
+
 ## [1.3.0](https://github.com/ZeroGachis/magicparse/compare/1.2.0...1.3.0) (2026-02-24)
 
 
