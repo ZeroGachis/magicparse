@@ -289,6 +289,33 @@ schema = {
 - strip-whitespaces
 - left-strip
 
+##### map
+
+Maps a raw value to another one. By default, a value which is not one of the
+`values` keys raises an error. Set the optional `default` parameter to map those
+values instead of failing:
+
+```python
+{
+    "key": "unit-of-measurement",
+    "column-number": 12,
+    "type": "int",
+    "pre-processors": [
+        {
+            "name": "map",
+            "parameters": {"values": {"K": 0, "A": 1, "L": 2}, "default": 0},
+        }
+    ],
+}
+```
+
+An empty string can be used as a key to map blank values:
+`{"values": {"": 0, "K": 1}}`. Note that a field whose raw value is empty is
+never given to its pre-processors: it fails as a required field, or is parsed as
+`None` when the field is declared `"optional": True`. Mapping an empty value
+therefore only applies when a previous pre-processor produces an empty string,
+for instance `strip-whitespaces` on a blank columnar field.
+
 #### Validators
 
 - regex-matches

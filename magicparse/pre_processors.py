@@ -38,16 +38,27 @@ class LeftPadZeroes(PreProcessor):
         return "left-pad-zeroes"
 
 
+class _NoDefault:
+    "Sentinel allowing 'None' to be used as a mapping default value"
+
+
+NO_DEFAULT = _NoDefault()
+
+
 class Map(PreProcessor):
-    def __init__(self, on_error: OnError, values: dict[str, Any]) -> None:
+    def __init__(self, on_error: OnError, values: dict[str, Any], default: Any = NO_DEFAULT) -> None:
         super().__init__(on_error)
         self.values = values
+        self.default = default
         self._keys = ", ".join(f"'{key}'" for key in self.values.keys())
 
     def apply(self, value: str) -> str:
         try:
             return self.values[value]
         except:
+            if not isinstance(self.default, _NoDefault):
+                return self.default
+
             raise ValueError(f"value '{value}' does not map to any values in [{self._keys}]")
 
     @staticmethod

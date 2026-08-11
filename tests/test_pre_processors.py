@@ -1,6 +1,7 @@
 import re
 from typing import Any
 from magicparse.pre_processors import (
+    NO_DEFAULT,
     LeftPadZeroes,
     Map,
     PreProcessor,
@@ -23,6 +24,15 @@ class TestBuild(TestCase):
         pre_processor = PreProcessor.build({"name": "map", "parameters": {"values": {"input": "output"}}})
         assert isinstance(pre_processor, Map)
         assert pre_processor.values == {"input": "output"}
+        assert pre_processor.default is NO_DEFAULT
+
+    def test_map_with_default(self):
+        pre_processor = PreProcessor.build(
+            {"name": "map", "parameters": {"values": {"input": "output"}, "default": "fallback"}}
+        )
+        assert isinstance(pre_processor, Map)
+        assert pre_processor.values == {"input": "output"}
+        assert pre_processor.default == "fallback"
 
     def test_replace(self):
         pre_processor = PreProcessor.build({"name": "replace", "parameters": {"pattern": "aa", "replacement": "bb"}})
@@ -80,6 +90,26 @@ class TestMap(TestCase):
     def test_known_input(self):
         pre_processor = PreProcessor.build({"name": "map", "parameters": {"values": {"A": "1", "B": "2"}}})
         assert pre_processor.apply("A") == "1"
+
+    def test_unknown_input_with_default(self):
+        pre_processor = PreProcessor.build(
+            {"name": "map", "parameters": {"values": {"A": "1", "B": "2"}, "default": "0"}}
+        )
+        assert pre_processor.apply("an input") == "0"
+
+    def test_known_input_with_default(self):
+        pre_processor = PreProcessor.build(
+            {"name": "map", "parameters": {"values": {"A": "1", "B": "2"}, "default": "0"}}
+        )
+        assert pre_processor.apply("A") == "1"
+
+    def test_none_default(self):
+        pre_processor = PreProcessor.build({"name": "map", "parameters": {"values": {"A": "1"}, "default": None}})
+        assert pre_processor.apply("an input") is None
+
+    def test_empty_value_can_be_mapped(self):
+        pre_processor = PreProcessor.build({"name": "map", "parameters": {"values": {"": "1", "A": "2"}}})
+        assert pre_processor.apply("") == "1"
 
 
 class TestReplace(TestCase):
