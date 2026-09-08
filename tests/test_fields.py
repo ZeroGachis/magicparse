@@ -2,11 +2,12 @@ from decimal import Decimal
 from typing import Any
 
 import pytest
-from magicparse.transform import Ok
-from magicparse.type_converters import DecimalConverter, StrConverter
+
 from magicparse.fields import ColumnarField, CsvField, Field
 from magicparse.post_processors import Divide
 from magicparse.pre_processors import Replace, StripWhitespaces
+from magicparse.transform import Ok, SkipRow
+from magicparse.type_converters import DecimalConverter, StrConverter
 from magicparse.validators import RegexMatches
 
 
@@ -125,6 +126,19 @@ def test_require_field_with_empty_value():
     )
     with pytest.raises(ValueError, match="pepito field is required but the value was empty"):
         field.parse("")
+
+
+def test_ignore_require_field_with_empty_value():
+    field = DummyField(
+        "pepito",
+        {
+            "type": {"key": "decimal", "on-error": "skip-row"},
+        },
+    )
+    result = field.parse("")
+    assert isinstance(result, SkipRow)
+    assert type(result.exception) is ValueError
+    assert str(result.exception) == "pepito field is required but the value was empty"
 
 
 def test_field_without_key():
