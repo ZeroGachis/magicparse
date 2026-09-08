@@ -18,6 +18,7 @@ class Field(ABC):
         post_processors = [PostProcessor.build(item) for item in options.get("post-processors", [])]
 
         self.optional = options.get("optional", False)
+        self.on_type_error = type_converter.on_error
 
         self.transforms = pre_processors + [type_converter] + validators + post_processors
 
@@ -25,6 +26,8 @@ class Field(ABC):
         if not raw_value:
             if self.optional:
                 return Ok(value=None)
+            elif self.on_type_error == OnError.SKIP_ROW:
+                return SkipRow(ValueError(f"{self.key} field is required but the value was empty"))
             else:
                 raise ValueError(f"{self.key} field is required but the value was empty")
         for transform in self.transforms:

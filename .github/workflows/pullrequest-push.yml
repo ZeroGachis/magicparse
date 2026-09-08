@@ -31,6 +31,7 @@ jobs:
           install: true
           install_args: python poetry
           cache: true
+          version: 2026.9.2
       - name: Install Python dependencies
         uses: ZeroGachis/.github/.github/actions/poetry-install@v6
         with:
