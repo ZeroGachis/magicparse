@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.4.0](https://github.com/ZeroGachis/magicparse/compare/1.3.0...1.4.0) (2026-09-08)
+
+
+### Features
+
+* **Fields:** Consider null as a type error by using the on-error att… ([53b6c93](https://github.com/ZeroGachis/magicparse/commit/53b6c93b0b8e4b5533d82123f60389e49742cd00))
+* **Fields:** Consider null as a type error by using the on-error attribute to either raise or skip ([d07b680](https://github.com/ZeroGachis/magicparse/commit/d07b680c43d699cb34ee82b17383bd121e2ac70d))
+
+
+### Miscellaneous Chores
+
+* **Mise:** Fix version waiting for assets release ([93cadf0](https://github.com/ZeroGachis/magicparse/commit/93cadf00a26979c49afd74917fbf9e056e47a4fb))
+
+
+### Continuous Integration
+
+* Add security-scan workflow ([65f4e9a](https://github.com/ZeroGachis/magicparse/commit/65f4e9af7008d80581782119e7352469372e3f1f))
+* Only depends on a major release (v7) of the security-scan workflow ([6d7c1f6](https://github.com/ZeroGachis/magicparse/commit/6d7c1f6448bce73d4e93317b81933136c21e2f50))
+* Run security-scan workflow only once a week (every monday at 6AM) ([8e6948a](https://github.com/ZeroGachis/magicparse/commit/8e6948afeeb12e2c371c3db40f1544076ed61f79))
+
 ## [1.3.0](https://github.com/ZeroGachis/magicparse/compare/1.2.0...1.3.0) (2026-02-24)
 
 
