@@ -14,7 +14,7 @@ jsonata-python = "^0.6.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^9"
 awscli = "~1"
-ruff = "^0.15"
+ruff = "^0.16"
 pre-commit = "^4"
 basedpyright = "^1.38"
 
